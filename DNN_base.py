@@ -384,7 +384,7 @@ def PDE_DNN(variable_input, Weights, Biases, hiddens, activate_name=None):
     elif activate_name == 'phi':
         DNN_activation = phi
 
-    layers = len(Weights)                   # 得到输入到输出的层数，即隐藏层层数
+    layers = len(hiddens) + 1               # 得到输入到输出的层数，即隐藏层层数
     H = variable_input                      # 代表输入数据，即输入层
     hidden_record = 0
     for k in range(layers-1):
@@ -430,7 +430,7 @@ def PDE_DNN_BN(variable_input, Weights, Biases, hiddens, activate_name=None, is_
     elif activate_name == 'phi':
         DNN_activation = phi
 
-    layers = len(Weights)                   # 得到输入到输出的层数，即隐藏层层数
+    layers = len(hiddens) + 1  # 得到输入到输出的层数，即隐藏层层数
     H = variable_input                      # 代表输入数据，即输入层
     hidden_record = 0
     for k in range(layers-1):
@@ -490,7 +490,7 @@ def PDE_DNN_scale(variable_input, Weights, Biases, hiddens, freq_frag, activate_
     # 这个的作用是什么？
     mixcoe = np.concatenate((mixcoe, np.ones([hiddens[0] - Unit_num * len(freq_frag)]) * freq_frag[-1]))
 
-    layers = len(Weights)                   # 得到输入到输出的层数，即隐藏层层数
+    layers = len(hiddens) + 1  # 得到输入到输出的层数，即隐藏层层数
     H = variable_input                      # 代表输入数据，即输入层
     W_in = Weights[0]
     B_in = Biases[0]
@@ -545,7 +545,6 @@ def PDE_subDNNs_scale(variable_input, Wlists, Blists, hiddens, freq_frag, activa
     elif activate_name == 'phi':
         DNN_activation = phi
 
-    output = []
     freqs_parts = []
     N2subnets = len(Wlists)
     len2parts = int(len(freq_frag) / N2subnets)
@@ -555,6 +554,9 @@ def PDE_subDNNs_scale(variable_input, Wlists, Blists, hiddens, freq_frag, activa
     part2freq_frag = freq_frag[len2parts * (isubnet + 1):]
     freqs_parts.append(part2freq_frag)
 
+    output = []
+    layers = len(hiddens) + 1  # 得到输入到输出的层数，即隐藏层层数
+    H = variable_input         # 代表输入数据，即输入层
     for isubnet in range(N2subnets):
         len2unit = int(hiddens[0] / len(freqs_parts[isubnet]))
 
@@ -573,8 +575,7 @@ def PDE_subDNNs_scale(variable_input, Wlists, Blists, hiddens, freq_frag, activa
 
         Weights = Wlists[isubnet]
         Biases = Blists[isubnet]
-        layers = len(Weights)                   # 得到输入到输出的层数，即隐藏层层数
-        H = variable_input                      # 代表输入数据，即输入层
+
         W_in = Weights[0]
         B_in = Biases[0]
         if len(freq_frag) == 1:
@@ -642,7 +643,7 @@ def PDE_DNN_adapt_scale(variable_input, Weights, Biases, hiddens, freq_frag, act
     # 将 int 型的 mixcoe 转化为 发np.flost32 型的 mixcoe，mixcoe[: units[1]]省略了行的维度
     init_mixcoe = init_mixcoe.astype(np.float32)
 
-    layers = len(Weights)                   # 得到输入到输出的层数，即隐藏层层数
+    layers = len(hiddens)+1                   # 得到输入到输出的层数，即隐藏层层数
     H = variable_input                      # 代表输入数据，即输入层
     W_in = Weights[0]
     B_in = Biases[0]
@@ -700,7 +701,6 @@ def PDE_subDNNs_adapt_scale(variable_input, Wlists, Blists, hiddens, freq_frag, 
     elif activate_name == 'phi':
         DNN_activation = phi
 
-    output = []
     freqs_parts = []
     N2subnets = len(Wlists)
     len2parts = int(len(freq_frag) / N2subnets)
@@ -710,6 +710,9 @@ def PDE_subDNNs_adapt_scale(variable_input, Wlists, Blists, hiddens, freq_frag, 
     part2freq_frag = freq_frag[len2parts * (isubnet + 1):]
     freqs_parts.append(part2freq_frag)
 
+    output = []
+    layers = len(hiddens) + 1  # 得到输入到输出的层数，即隐藏层层数
+    H = variable_input         # 代表输入数据，即输入层
     for isubnet in range(N2subnets):
         len2unit = int(hiddens[0] / len(freqs_parts[isubnet]))
 
@@ -730,8 +733,7 @@ def PDE_subDNNs_adapt_scale(variable_input, Wlists, Blists, hiddens, freq_frag, 
 
         Weights = Wlists[isubnet]
         Biases = Blists[isubnet]
-        layers = len(Weights)                   # 得到输入到输出的层数，即隐藏层层数
-        H = variable_input                      # 代表输入数据，即输入层
+
         W_in = Weights[0]
         B_in = Biases[0]
         if len(freq_frag) == 1:
@@ -785,7 +787,7 @@ def PDE_DNN_FourierBase(variable_input, Weights, Biases, hiddens, freq_frag, act
     elif activate_name == 'phi':
         DNN_activation = phi
 
-    layers = len(Weights)                   # 得到输入到输出的层数，即隐藏层层数
+    layers = len(hiddens) + 1                   # 得到输入到输出的层数，即隐藏层层数
     H = variable_input                      # 代表输入数据，即输入层
 
     # 计算第一个隐藏单元和尺度标记的比例
@@ -830,3 +832,89 @@ def PDE_DNN_FourierBase(variable_input, Weights, Biases, hiddens, freq_frag, act
     # 下面这个是输出层
     # output = tf.nn.tanh(output)
     return output
+
+
+def PDE_subDNNs_FourierBase(variable_input, Wlists, Blists, hiddens, freq_frag, activate_name=None):
+    if activate_name == 'relu':
+        DNN_activation = tf.nn.relu
+    elif activate_name == 'leaky_relu':
+        DNN_activation = tf.nn.leaky_relu(0.2)
+    elif activate_name == 'elu':
+        DNN_activation = tf.nn.elu
+    elif activate_name == 'tanh':
+        DNN_activation = tf.nn.tanh
+    elif activate_name == 'sin':
+        DNN_activation = mysin
+    elif activate_name == 'srelu':
+        DNN_activation = srelu
+    elif activate_name == 'powsin_srelu':
+        DNN_activation = powsin_srelu
+    elif activate_name == 's2relu':
+        DNN_activation = s2relu
+    elif activate_name == 'sin2_srelu':
+        DNN_activation = sin2_srelu
+    elif activate_name == 'slrelu':
+        DNN_activation = slrelu
+    elif activate_name == 'selu':
+        DNN_activation = selu
+    elif activate_name == 'phi':
+        DNN_activation = phi
+
+    freqs_parts = []
+    N2subnets = len(Wlists)
+    len2parts = int(len(freq_frag) / N2subnets)
+    for isubnet in range(N2subnets - 1):
+        part2freq_frag = freq_frag[isubnet * len2parts:len2parts * (isubnet + 1)]
+        freqs_parts.append(part2freq_frag)
+    part2freq_frag = freq_frag[len2parts * (isubnet + 1):]
+    freqs_parts.append(part2freq_frag)
+
+    output = []
+    layers = len(hiddens) + 1  # 得到输入到输出的层数，即隐藏层层数
+    H = variable_input         # 代表输入数据，即输入层
+    for isubnet in range(N2subnets):
+        len2unit = int(hiddens[0] / len(freqs_parts[isubnet]))
+
+        # Units_num.append(len2unit)
+        # np.repeat(a, repeats, axis=None)
+        # 输入: a是数组,repeats是各个元素重复的次数(repeats一般是个标量,稍复杂点是个list),在axis的方向上进行重复
+        # 返回: 如果不指定axis,则将重复后的结果展平(维度为1)后返回;如果指定axis,则不展平
+        init_mixcoe = np.repeat(freqs_parts[isubnet], len2unit)
+
+        # 将 int 型的 mixcoe 转化为 发np.flost32 型的 mixcoe，mixcoe[: units[1]]省略了行的维度
+        init_mixcoe = init_mixcoe[: hiddens[0]].astype(np.float32)
+
+        # 这个的作用是什么？
+        init_mixcoe = np.concatenate((init_mixcoe, np.ones([hiddens[0] - len2unit * len(freqs_parts[isubnet])]) *
+                                      (freqs_parts[isubnet])[-1]))
+
+        mixcoe = tf.get_variable(name='M' + str(isubnet), initializer=init_mixcoe)
+
+        Weights = Wlists[isubnet]
+        Biases = Blists[isubnet]
+
+        W_in = Weights[0]
+        B_in = Biases[0]
+        if len(freqs_parts[isubnet]) == 1:
+            H = tf.add(tf.matmul(H, W_in), B_in)
+        else:
+            H = tf.add(tf.matmul(H, W_in) * mixcoe, B_in)
+
+        H = tf.sin(H)
+
+        hidden_record = hiddens[0]
+        for k in range(layers - 2):
+            H_pre = H
+            W = Weights[k + 1]
+            B = Biases[k + 1]
+            H = DNN_activation(tf.add(tf.matmul(H, W), B))
+            if hiddens[k + 1] == hidden_record:
+                H = H + H_pre
+            hidden_record = hiddens[k + 1]
+
+        W_out = Weights[-1]
+        B_out = Biases[-1]
+        output2subnet = tf.add(tf.matmul(H, W_out), B_out)
+        output.append(output2subnet)
+    out = tf.reduce_mean(output, axis=0)
+    return out
