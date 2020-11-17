@@ -123,14 +123,14 @@ def solve_laplace(R):
 
     # 初始化权重和和偏置的模式
     if R['model'] == 'PDE_subDNNs_scale' or R['model'] == 'PDE_subDNNs_adapt_scale':
-        W_lists = []
-        B_lists = []
+        WNN_lists = []
+        BNN_lists = []
         nums2nets = R['num2subnet']
         for isubnes in range(nums2nets):
             flag1 = 'WB' + str(isubnes) + 'subnet'
             Weights, Biases = DNN_base.initialize_NN_random_normal2(input_dim, out_dim, hidden_layers, flag1)
-            W_lists.append(Weights)
-            B_lists.append(Biases)
+            WNN_lists.append(Weights)
+            BNN_lists.append(Biases)
     else:
         flag1 = 'WB'
         W2NN, B2NN = DNN_base.initialize_NN_random_normal2(input_dim, out_dim, hidden_layers, flag1)
@@ -174,11 +174,11 @@ def solve_laplace(R):
             elif R['model'] == 'PDE_subDNNs_scale':
                 # 在变量的内部区域训练
                 freq = np.concatenate(([1], np.arange(1, 100 - 1)), axis=0)
-                U_NN = DNN_base.PDE_subDNNs_scale(XY_it, W_lists, B_lists, hidden_layers, freq, activate_name=act_func)
-                ULeft_NN = DNN_base.PDE_subDNNs_scale(XY_left_bd, W_lists, B_lists, hidden_layers, freq, activate_name=act_func)
-                URight_NN = DNN_base.PDE_subDNNs_scale(XY_right_bd, W_lists, B_lists, hidden_layers, freq, activate_name=act_func)
-                UBottom_NN = DNN_base.PDE_subDNNs_scale(XY_bottom_bd, W_lists, B_lists, hidden_layers, freq, activate_name=act_func)
-                UTop_NN = DNN_base.PDE_subDNNs_scale(XY_top_bd, W_lists, B_lists, hidden_layers, freq, activate_name=act_func)
+                U_NN = DNN_base.PDE_subDNNs_scale(XY_it, WNN_lists, BNN_lists, hidden_layers, freq, activate_name=act_func)
+                ULeft_NN = DNN_base.PDE_subDNNs_scale(XY_left_bd, WNN_lists, BNN_lists, hidden_layers, freq, activate_name=act_func)
+                URight_NN = DNN_base.PDE_subDNNs_scale(XY_right_bd, WNN_lists, BNN_lists, hidden_layers, freq, activate_name=act_func)
+                UBottom_NN = DNN_base.PDE_subDNNs_scale(XY_bottom_bd, WNN_lists, BNN_lists, hidden_layers, freq, activate_name=act_func)
+                UTop_NN = DNN_base.PDE_subDNNs_scale(XY_top_bd, WNN_lists, BNN_lists, hidden_layers, freq, activate_name=act_func)
             elif R['model'] == 'PDE_DNN_adapt_scale':
                 freqs = np.concatenate(([1], np.arange(1, 100 - 1)), axis=0)
                 U_NN = DNN_base.PDE_DNN_adapt_scale(XY_it, W2NN, B2NN, hidden_layers, freqs, activate_name=act_func)
@@ -188,11 +188,11 @@ def solve_laplace(R):
                 UTop_NN = DNN_base.PDE_DNN_adapt_scale(XY_top_bd, W2NN, B2NN, hidden_layers, freqs, activate_name=act_func)
             elif R['model'] == 'PDE_subDNNs_adapt_scale':
                 freqs = np.concatenate(([1], np.arange(1, 100 - 1)), axis=0)
-                U_NN = DNN_base.PDE_subDNNs_adapt_scale(XY_it, W_lists, B_lists, hidden_layers, freqs, activate_name=act_func)
-                ULeft_NN = DNN_base.PDE_subDNNs_adapt_scale(XY_left_bd, W_lists, B_lists, hidden_layers, freqs, activate_name=act_func)
-                URight_NN = DNN_base.PDE_subDNNs_adapt_scale(XY_right_bd, W_lists, B_lists, hidden_layers, freqs, activate_name=act_func)
-                UBottom_NN = DNN_base.PDE_subDNNs_adapt_scale(XY_bottom_bd, W_lists, B_lists, hidden_layers, freqs, activate_name=act_func)
-                UTop_NN = DNN_base.PDE_subDNNs_adapt_scale(XY_top_bd, W_lists, B_lists, hidden_layers, freqs, activate_name=act_func)
+                U_NN = DNN_base.PDE_subDNNs_adapt_scale(XY_it, WNN_lists, BNN_lists, hidden_layers, freqs, activate_name=act_func)
+                ULeft_NN = DNN_base.PDE_subDNNs_adapt_scale(XY_left_bd, WNN_lists, BNN_lists, hidden_layers, freqs, activate_name=act_func)
+                URight_NN = DNN_base.PDE_subDNNs_adapt_scale(XY_right_bd, WNN_lists, BNN_lists, hidden_layers, freqs, activate_name=act_func)
+                UBottom_NN = DNN_base.PDE_subDNNs_adapt_scale(XY_bottom_bd, WNN_lists, BNN_lists, hidden_layers, freqs, activate_name=act_func)
+                UTop_NN = DNN_base.PDE_subDNNs_adapt_scale(XY_top_bd, WNN_lists, BNN_lists, hidden_layers, freqs, activate_name=act_func)
             elif R['model'] == 'PDE_DNN_FourierBase':
                 freqs = np.concatenate(([1], np.arange(1, 100 - 1)), axis=0)
                 U_NN = DNN_base.PDE_DNN_FourierBase(XY_it, W2NN, B2NN, hidden_layers, freqs, activate_name=act_func)
@@ -561,7 +561,8 @@ if __name__ == "__main__":
     R['train_group'] = 0
 
     # R['hidden_layers'] = (10, 8, 6, 4, 2)
-    R['hidden_layers'] = (100, 80, 60, 60, 40, 40, 20)
+    R['hidden_layers'] = (30, 20, 20, 15, 15, 10)
+    # R['hidden_layers'] = (100, 80, 60, 60, 40, 40, 20)
     # R['hidden_layers'] = (200, 100, 80, 50, 30)
     # R['hidden_layers'] = (300, 200, 150, 100, 100, 50, 50)
     # R['hidden_layers'] = (500, 400, 300, 200, 100)
@@ -581,11 +582,11 @@ if __name__ == "__main__":
     R['model'] = 'PDE_subDNNs_scale'
     # R['model'] = 'PDE_subDNNs_adapt_scale'
 
-    # R['activate_func'] = 'relu'
+    R['activate_func'] = 'relu'
     # R['activate_func'] = 'tanh'
     # R['activate_func']' = leaky_relu'
     # R['activate_func'] = 'srelu'
-    R['activate_func'] = 's2relu'
+    # R['activate_func'] = 's2relu'
     # R['activate_func'] = 'leaky_srelu'
     # R['activate_func'] = 'modified_leaky_srelu'
     # R['activate_func'] = 'slrelu'
