@@ -484,11 +484,10 @@ def PDE_DNN_scale(variable_input, Weights, Biases, hiddens, freq_frag, activate_
     # 返回: 如果不指定axis,则将重复后的结果展平(维度为1)后返回;如果指定axis,则不展平
     mixcoe = np.repeat(freq_frag, Unit_num)
 
-    # 将 int 型的 mixcoe 转化为 发np.flost32 型的 mixcoe，mixcoe[: units[1]]省略了行的维度
-    mixcoe = mixcoe[: hiddens[0]].astype(np.float32)
-
     # 这个的作用是什么？
     mixcoe = np.concatenate((mixcoe, np.ones([hiddens[0] - Unit_num * len(freq_frag)]) * freq_frag[-1]))
+
+    mixcoe = mixcoe.astype(np.float32)
 
     layers = len(hiddens) + 1  # 得到输入到输出的层数，即隐藏层层数
     H = variable_input                      # 代表输入数据，即输入层
@@ -556,7 +555,6 @@ def PDE_subDNNs_scale(variable_input, Wlists, Blists, hiddens, freq_frag, activa
 
     output = []
     layers = len(hiddens) + 1  # 得到输入到输出的层数，即隐藏层层数
-    H = variable_input         # 代表输入数据，即输入层
     for isubnet in range(N2subnets):
         len2unit = int(hiddens[0] / len(freqs_parts[isubnet]))
 
@@ -566,16 +564,16 @@ def PDE_subDNNs_scale(variable_input, Wlists, Blists, hiddens, freq_frag, activa
         # 返回: 如果不指定axis,则将重复后的结果展平(维度为1)后返回;如果指定axis,则不展平
         mixcoe = np.repeat(freqs_parts[isubnet], len2unit)
 
-        # 将 int 型的 mixcoe 转化为 发np.flost32 型的 mixcoe，mixcoe[: units[1]]省略了行的维度
-        mixcoe = mixcoe[: hiddens[0]].astype(np.float32)
-
         # 这个的作用是什么？
         mixcoe = np.concatenate((mixcoe, np.ones([hiddens[0] - len2unit * len(freqs_parts[isubnet])]) *
                                      (freqs_parts[isubnet])[-1]))
 
+        mixcoe = mixcoe.astype(np.float32)
+
         Weights = Wlists[isubnet]
         Biases = Blists[isubnet]
 
+        H = variable_input  # 代表输入数据，即输入层
         W_in = Weights[0]
         B_in = Biases[0]
         if len(freq_frag) == 1:
@@ -712,7 +710,6 @@ def PDE_subDNNs_adapt_scale(variable_input, Wlists, Blists, hiddens, freq_frag, 
 
     output = []
     layers = len(hiddens) + 1  # 得到输入到输出的层数，即隐藏层层数
-    H = variable_input         # 代表输入数据，即输入层
     for isubnet in range(N2subnets):
         len2unit = int(hiddens[0] / len(freqs_parts[isubnet]))
 
@@ -722,18 +719,17 @@ def PDE_subDNNs_adapt_scale(variable_input, Wlists, Blists, hiddens, freq_frag, 
         # 返回: 如果不指定axis,则将重复后的结果展平(维度为1)后返回;如果指定axis,则不展平
         init_mixcoe = np.repeat(freqs_parts[isubnet], len2unit)
 
-        # 将 int 型的 mixcoe 转化为 发np.flost32 型的 mixcoe，mixcoe[: units[1]]省略了行的维度
-        init_mixcoe = init_mixcoe[: hiddens[0]].astype(np.float32)
-
         # 这个的作用是什么？
         init_mixcoe = np.concatenate((init_mixcoe, np.ones([hiddens[0] - len2unit * len(freqs_parts[isubnet])]) *
                                      (freqs_parts[isubnet])[-1]))
+        init_mixcoe = init_mixcoe.astype(np.float32)
 
         mixcoe = tf.get_variable(name='M' + str(isubnet), initializer=init_mixcoe)
 
         Weights = Wlists[isubnet]
         Biases = Blists[isubnet]
 
+        H = variable_input  # 代表输入数据，即输入层
         W_in = Weights[0]
         B_in = Biases[0]
         if len(freq_frag) == 1:
@@ -799,13 +795,9 @@ def PDE_DNN_FourierBase(variable_input, Weights, Biases, hiddens, freq_frag, act
     # 返回: 如果不指定axis,则将重复后的结果展平(维度为1)后返回;如果指定axis,则不展平
     mixcoe = np.repeat(freq_frag, Unit_num)
 
-    # 将 int 型的 mixcoe 转化为 发np.flost32 型的 mixcoe，mixcoe[: units[1]]省略了行的维度
-    mixcoe = mixcoe[: hiddens[0]]
-
     # 如果第一个隐藏单元的长度大于复制后的频率标记，那就按照最大的频率在最后补齐
     mixcoe = np.concatenate((mixcoe, np.ones([hiddens[0] - Unit_num * len(freq_frag)]) * freq_frag[-1]))
 
-    # mixcoe = np.reshape(mixcoe.astype(np.float32), shape=[-1, 1])
     mixcoe = mixcoe.astype(np.float32)
 
     W_in = Weights[0]
@@ -871,7 +863,6 @@ def PDE_subDNNs_FourierBase(variable_input, Wlists, Blists, hiddens, freq_frag, 
 
     output = []
     layers = len(hiddens) + 1  # 得到输入到输出的层数，即隐藏层层数
-    H = variable_input         # 代表输入数据，即输入层
     for isubnet in range(N2subnets):
         len2unit = int(hiddens[0] / len(freqs_parts[isubnet]))
 
@@ -881,18 +872,17 @@ def PDE_subDNNs_FourierBase(variable_input, Wlists, Blists, hiddens, freq_frag, 
         # 返回: 如果不指定axis,则将重复后的结果展平(维度为1)后返回;如果指定axis,则不展平
         init_mixcoe = np.repeat(freqs_parts[isubnet], len2unit)
 
-        # 将 int 型的 mixcoe 转化为 发np.flost32 型的 mixcoe，mixcoe[: units[1]]省略了行的维度
-        init_mixcoe = init_mixcoe[: hiddens[0]].astype(np.float32)
-
         # 这个的作用是什么？
         init_mixcoe = np.concatenate((init_mixcoe, np.ones([hiddens[0] - len2unit * len(freqs_parts[isubnet])]) *
                                       (freqs_parts[isubnet])[-1]))
+        init_mixcoe = init_mixcoe.astype(np.float32)
 
         mixcoe = tf.get_variable(name='M' + str(isubnet), initializer=init_mixcoe)
 
         Weights = Wlists[isubnet]
         Biases = Blists[isubnet]
 
+        H = variable_input                # 代表输入数据，即输入层
         W_in = Weights[0]
         B_in = Biases[0]
         if len(freqs_parts[isubnet]) == 1:
