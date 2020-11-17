@@ -173,9 +173,9 @@ def solve_laplace(R):
             elif R['model'] == 'PDE_subDNNs_adapt_scale':
                 freq_flags = np.concatenate(([1], np.arange(1, 100 - 1)), axis=0)
                 freq = freq_flags*0.005
-                U_NN = DNN_base.PDE_DNN_adapt_scale(X_it, Weights, Biases, hidden_layers, freq, activate_name=act_func)
-                ULeft_NN = DNN_base.PDE_DNN_adapt_scale(X_left_bd, Weights, Biases, hidden_layers, freq, activate_name=act_func)
-                URight_NN = DNN_base.PDE_DNN_adapt_scale(X_right_bd, Weights, Biases, hidden_layers, freq, activate_name=act_func)
+                U_NN = DNN_base.PDE_DNN_adapt_scale(X_it, W_lists, B_lists, hidden_layers, freq, activate_name=act_func)
+                ULeft_NN = DNN_base.PDE_DNN_adapt_scale(X_left_bd, W_lists, B_lists, hidden_layers, freq, activate_name=act_func)
+                URight_NN = DNN_base.PDE_DNN_adapt_scale(X_right_bd, W_lists, B_lists, hidden_layers, freq, activate_name=act_func)
             elif R['model'] == 'PDE_DNN_FourierBase':
                 freqs = np.concatenate(([1], np.arange(1, 100 - 1)), axis=0)
                 U_NN = DNN_base.PDE_DNN_FourierBase(X_it, Weights, Biases, hidden_layers, freqs, activate_name=act_func)
