@@ -533,8 +533,8 @@ if __name__ == "__main__":
     R['laplace_opt'] = 'p_laplace2multi_scale_implicit'
     # R['equa_name'] = 'multi_scale2D_1'
     # R['equa_name'] = 'multi_scale2D_2'
-    # R['equa_name'] = 'multi_scale2D_3'
-    R['equa_name'] = 'multi_scale2D_4'
+    R['equa_name'] = 'multi_scale2D_3'
+    # R['equa_name'] = 'multi_scale2D_4'
 
     # R['laplace_opt'] = 'p_laplace2multi_scale_explicit'
     # R['equa_name'] = 'multi_scale2D_6'
@@ -602,8 +602,8 @@ if __name__ == "__main__":
     R['optimizer_name'] = 'Adam'                          # 优化器
     R['train_group'] = 0
 
-    R['hidden_layers'] = (10, 8, 6, 4, 2)
-    # R['hidden_layers'] = (100, 80, 60, 60, 40, 40, 20)
+    # R['hidden_layers'] = (10, 8, 6, 4, 2)
+    R['hidden_layers'] = (100, 80, 60, 60, 40, 40, 20)
     # R['hidden_layers'] = (200, 100, 80, 50, 30)
     # R['hidden_layers'] = (300, 200, 150, 100, 100, 50, 50)
     # R['hidden_layers'] = (500, 400, 300, 200, 100)
@@ -617,14 +617,15 @@ if __name__ == "__main__":
 
     # R['model'] = 'PDE_DNN'                         # 使用的网络模型
     # R['model'] = 'PDE_DNN_BN'
-    # R['model'] = 'PDE_DNN_scale'
+    R['model'] = 'PDE_DNN_scale'
     # R['model'] = 'PDE_DNN_adapt_scale'
-    R['model'] = 'PDE_DNN_FourierBase'
+    # R['model'] = 'PDE_DNN_FourierBase'
     # R['model'] = 'PDE_CPDNN'
 
     # R['activate_func'] = 'relu'
     # R['activate_func'] = 'tanh'
     # R['activate_func']' = leaky_relu'
+    # R['activate_func'] = 'sintanh'
     # R['activate_func'] = 'srelu'
     R['activate_func'] = 's2relu'
     # R['activate_func'] = 'leaky_srelu'

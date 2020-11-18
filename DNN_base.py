@@ -111,6 +111,10 @@ def s2relu(x):
     return tf.nn.relu(1-x)*tf.nn.relu(x)*tf.sin(2*np.pi*x)
 
 
+def stanh(x):
+    return tf.tanh(x)*tf.sin(2*np.pi*x)
+
+
 def powsin_srelu(x):
     return tf.nn.relu(1-x)*tf.nn.relu(x)*tf.sin(2*np.pi*x)*tf.sin(2*np.pi*x)
 
@@ -371,6 +375,8 @@ def PDE_DNN(variable_input, Weights, Biases, hiddens, activate_name=None):
         DNN_activation = mysin
     elif activate_name == 'srelu':
         DNN_activation = srelu
+    elif activate_name == 'sintanh':
+        DNN_activation = stanh
     elif activate_name == 'powsin_srelu':
         DNN_activation = powsin_srelu
     elif activate_name == 's2relu':
@@ -417,6 +423,8 @@ def PDE_DNN_BN(variable_input, Weights, Biases, hiddens, activate_name=None, is_
         DNN_activation = mysin
     elif activate_name == 'srelu':
         DNN_activation = srelu
+    elif activate_name == 'sintanh':
+        DNN_activation = stanh
     elif activate_name == 'powsin_srelu':
         DNN_activation = powsin_srelu
     elif activate_name == 's2relu':
@@ -464,6 +472,8 @@ def PDE_DNN_scale(variable_input, Weights, Biases, hiddens, freq_frag, activate_
         DNN_activation = mysin
     elif activate_name == 'srelu':
         DNN_activation = srelu
+    elif activate_name == 'sintanh':
+        DNN_activation = stanh
     elif activate_name == 'powsin_srelu':
         DNN_activation = powsin_srelu
     elif activate_name == 's2relu':
@@ -531,6 +541,8 @@ def PDE_subDNNs_scale(variable_input, Wlists, Blists, hiddens, freq_frag, activa
         DNN_activation = mysin
     elif activate_name == 'srelu':
         DNN_activation = srelu
+    elif activate_name == 'sintanh':
+        DNN_activation = stanh
     elif activate_name == 'powsin_srelu':
         DNN_activation = powsin_srelu
     elif activate_name == 's2relu':
@@ -598,7 +610,8 @@ def PDE_subDNNs_scale(variable_input, Wlists, Blists, hiddens, freq_frag, activa
         output2subnet = tf.add(tf.matmul(H, W_out), B_out)
         output.append(output2subnet)
     # out = tf.reduce_mean(output, axis=-1)
-    out = tf.reduce_mean(output, axis=0)
+    # out = tf.reduce_mean(output, axis=0)
+    out = tf.reduce_sum(output, axis=0)
     return out
 
 
@@ -615,6 +628,8 @@ def PDE_DNN_adapt_scale(variable_input, Weights, Biases, hiddens, freq_frag, act
         DNN_activation = mysin
     elif activate_name == 'srelu':
         DNN_activation = srelu
+    elif activate_name == 'sintanh':
+        DNN_activation = stanh
     elif activate_name == 'powsin_srelu':
         DNN_activation = powsin_srelu
     elif activate_name == 's2relu':
@@ -686,6 +701,8 @@ def PDE_subDNNs_adapt_scale(variable_input, Wlists, Blists, hiddens, freq_frag, 
         DNN_activation = mysin
     elif activate_name == 'srelu':
         DNN_activation = srelu
+    elif activate_name == 'sintanh':
+        DNN_activation = stanh
     elif activate_name == 'powsin_srelu':
         DNN_activation = powsin_srelu
     elif activate_name == 's2relu':
@@ -770,6 +787,8 @@ def PDE_DNN_FourierBase(variable_input, Weights, Biases, hiddens, freq_frag, act
         DNN_activation = mysin
     elif activate_name == 'srelu':
         DNN_activation = srelu
+    elif activate_name == 'sintanh':
+        DNN_activation = stanh
     elif activate_name == 'powsin_srelu':
         DNN_activation = powsin_srelu
     elif activate_name == 's2relu':
@@ -839,6 +858,8 @@ def PDE_subDNNs_FourierBase(variable_input, Wlists, Blists, hiddens, freq_frag, 
         DNN_activation = mysin
     elif activate_name == 'srelu':
         DNN_activation = srelu
+    elif activate_name == 'sintanh':
+        DNN_activation = stanh
     elif activate_name == 'powsin_srelu':
         DNN_activation = powsin_srelu
     elif activate_name == 's2relu':

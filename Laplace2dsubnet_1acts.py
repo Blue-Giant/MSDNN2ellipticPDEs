@@ -122,7 +122,8 @@ def solve_laplace(R):
             A_eps = MS_Laplace_eqs.elliptic_coef2E6(input_dim, out_dim, eps=epsilon)
 
     # 初始化权重和和偏置的模式
-    if R['model'] == 'PDE_subDNNs_scale' or R['model'] == 'PDE_subDNNs_adapt_scale':
+    if R['model'] == 'PDE_subDNNs_scale' or R['model'] == 'PDE_subDNNs_adapt_scale' or \
+            R['model'] == 'PDE_subDNNs_FourierBase':
         WNN_lists = []
         BNN_lists = []
         nums2nets = R['num2subnet']
@@ -146,7 +147,6 @@ def solve_laplace(R):
             boundary_penalty = tf.placeholder_with_default(input=1e3, shape=[], name='bd_p')
             in_learning_rate = tf.placeholder_with_default(input=1e-5, shape=[], name='lr')
             train_opt = tf.placeholder_with_default(input=True, shape=[], name='train_opt')
-            # multi_scale_ceof = tf.Variable(initial_value=init_mixcoe, dtype='float32', name='M0')
 
             # 供选择的网络模式
             if R['model'] == 'PDE_DNN':
@@ -200,6 +200,13 @@ def solve_laplace(R):
                 URight_NN = DNN_base.PDE_DNN_FourierBase(XY_right_bd, W2NN, B2NN, hidden_layers, freqs, activate_name=act_func)
                 UBottom_NN = DNN_base.PDE_DNN_FourierBase(XY_bottom_bd, W2NN, B2NN, hidden_layers, freqs, activate_name=act_func)
                 UTop_NN = DNN_base.PDE_DNN_FourierBase(XY_top_bd, W2NN, B2NN, hidden_layers, freqs, activate_name=act_func)
+            elif R['model'] == 'PDE_subDNNs_FourierBase':
+                freqs = np.concatenate(([1], np.arange(1, 100 - 1)), axis=0)
+                U_NN = DNN_base.PDE_subDNNs_FourierBase(XY_it, WNN_lists, BNN_lists, hidden_layers, freqs, activate_name=act_func)
+                ULeft_NN = DNN_base.PDE_subDNNs_FourierBase(XY_left_bd, WNN_lists, BNN_lists, hidden_layers, freqs, activate_name=act_func)
+                URight_NN = DNN_base.PDE_subDNNs_FourierBase(XY_right_bd, WNN_lists, BNN_lists, hidden_layers, freqs, activate_name=act_func)
+                UBottom_NN = DNN_base.PDE_subDNNs_FourierBase(XY_bottom_bd, WNN_lists, BNN_lists, hidden_layers, freqs, activate_name=act_func)
+                UTop_NN = DNN_base.PDE_subDNNs_FourierBase(XY_top_bd, WNN_lists, BNN_lists, hidden_layers, freqs, activate_name=act_func)
 
             X_it = tf.reshape(XY_it[:, 0], shape=[-1, 1])
             Y_it = tf.reshape(XY_it[:, 1], shape=[-1, 1])
@@ -581,12 +588,14 @@ if __name__ == "__main__":
     # R['model'] = 'PDE_DNN_FourierBase'
     R['model'] = 'PDE_subDNNs_scale'
     # R['model'] = 'PDE_subDNNs_adapt_scale'
+    # R['model'] = 'PDE_subDNNs_FourierBase'
 
-    R['activate_func'] = 'relu'
+    # R['activate_func'] = 'relu'
     # R['activate_func'] = 'tanh'
     # R['activate_func']' = leaky_relu'
     # R['activate_func'] = 'srelu'
-    # R['activate_func'] = 's2relu'
+    # R['activate_func'] = 'sintanh'
+    R['activate_func'] = 's2relu'
     # R['activate_func'] = 'leaky_srelu'
     # R['activate_func'] = 'modified_leaky_srelu'
     # R['activate_func'] = 'slrelu'
@@ -596,6 +605,10 @@ if __name__ == "__main__":
 
     R['variational_loss'] = 1                            # PDE变分
     R['hot_power'] = 1
-    R['num2subnet'] = 4
+    if R['model'] == 'PDE_subDNNs_scale' or R['model'] == 'PDE_subDNNs_adapt_scale' or \
+            R['model'] == 'PDE_subDNNs_FourierBase':
+        R['num2subnet'] = 4
+    else:
+        R['num2subnet'] = 1
     solve_laplace(R)
 
