@@ -24,7 +24,7 @@ import saveData
 def dictionary_out2file(R_dic, log_fileout):
     DNN_tools.log_string('Laplace type for problem: %s\n' % (R_dic['laplace_type']), log_fileout)
     DNN_tools.log_string('Equation name for problem: %s\n' % (R_dic['eqs_name']), log_fileout)
-
+    DNN_tools.log_string('The frequency to p-laplacian: %s\n' % (R_dic['freqs']), log_fileout)
     DNN_tools.log_string('Network model of solving problem: %s\n' % str(R_dic['model']), log_fileout)
     DNN_tools.log_string('Activate function for network: %s\n' % str(R_dic['activate_func']), log_fileout)
 
@@ -54,7 +54,8 @@ def solve_laplace(R):
     log_out_path = R['FolderName']        # 将路径从字典 R 中提取出来
     if not os.path.exists(log_out_path):  # 判断路径是否已经存在
         os.mkdir(log_out_path)            # 无 log_out_path 路径，创建一个 log_out_path 路径
-    log_fileout = open(os.path.join(log_out_path, 'log_train.txt'), 'w')  # 在这个路径下创建并打开一个可写的 log_train.txt文件
+    logfile_name = '%s_%s.txt' % ('log2train', R['activate_func'])
+    log_fileout = open(os.path.join(log_out_path, logfile_name), 'w')  # 在这个路径下创建并打开一个可写的 log_train.txt文件
     dictionary_out2file(R, log_fileout)
 
     # 一般 laplace 问题需要的设置
@@ -191,21 +192,25 @@ def solve_laplace(R):
                 URight_NN = DNN_base.PDE_DNN_BN(X_right_bd, Weights, Biases, hidden_layers, activate_name=act_func,
                                                 is_training=train_opt)
             elif R['model'] == 'PDE_DNN_scale':
-                freq = np.concatenate(([1], np.arange(1, 100 - 1)), axis=0)
+                freq = R['freqs']
                 U_NN = DNN_base.PDE_DNN_scale(X_it, Weights, Biases, hidden_layers, freq, activate_name=act_func)
                 ULeft_NN = DNN_base.PDE_DNN_scale(X_left_bd, Weights, Biases, hidden_layers, freq, activate_name=act_func)
                 URight_NN = DNN_base.PDE_DNN_scale(X_right_bd, Weights, Biases, hidden_layers, freq, activate_name=act_func)
             elif R['model'] == 'PDE_DNN_adapt_scale':
-                freq_flags = np.concatenate(([1], np.arange(1, 100 - 1)), axis=0)
-                freq = freq_flags*0.005
+                freq = R['freqs']
                 U_NN = DNN_base.PDE_DNN_adapt_scale(X_it, Weights, Biases, hidden_layers, freq, activate_name=act_func)
                 ULeft_NN = DNN_base.PDE_DNN_adapt_scale(X_left_bd, Weights, Biases, hidden_layers, freq, activate_name=act_func)
                 URight_NN = DNN_base.PDE_DNN_adapt_scale(X_right_bd, Weights, Biases, hidden_layers, freq, activate_name=act_func)
             elif R['model'] == 'PDE_DNN_FourierBase':
-                freqs = np.concatenate(([1], np.arange(1, 100 - 1)), axis=0)
-                U_NN = DNN_base.PDE_DNN_FourierBase(X_it, Weights, Biases, hidden_layers, freqs, activate_name=act_func)
-                ULeft_NN = DNN_base.PDE_DNN_FourierBase(X_left_bd, Weights, Biases, hidden_layers, freqs, activate_name=act_func)
-                URight_NN = DNN_base.PDE_DNN_FourierBase(X_right_bd, Weights, Biases, hidden_layers, freqs, activate_name=act_func)
+                freq = R['freqs']
+                U_NN = DNN_base.PDE_DNN_FourierBase(X_it, Weights, Biases, hidden_layers, freq, activate_name=act_func)
+                ULeft_NN = DNN_base.PDE_DNN_FourierBase(X_left_bd, Weights, Biases, hidden_layers, freq, activate_name=act_func)
+                URight_NN = DNN_base.PDE_DNN_FourierBase(X_right_bd, Weights, Biases, hidden_layers, freq, activate_name=act_func)
+            elif R['model'] == 'PDE_DNN_WaveletBase':
+                freq = R['freqs']
+                U_NN = DNN_base.PDE_DNN_WaveletBase(X_it, Weights, Biases, hidden_layers, freq, activate_name=act_func)
+                ULeft_NN = DNN_base.PDE_DNN_WaveletBase(X_left_bd, Weights, Biases, hidden_layers, freq, activate_name=act_func)
+                URight_NN = DNN_base.PDE_DNN_WaveletBase(X_right_bd, Weights, Biases, hidden_layers, freq, activate_name=act_func)
             elif R['model'] == 'PDE_CPDNN':
                 # 这个还需要研究，先放在这里。可分解的傅里叶展开，可以直接使用phase shift model
                 # 不可以分解的傅里叶展开怎么处理呢？
@@ -410,21 +415,22 @@ if __name__ == "__main__":
         R['order2laplace'] = 2
     elif R['laplace_type'] == 'p_laplace':
         # 频率设置
-        epsilon = input('please input epsilon =')  # 由终端输入的会记录为字符串形式
-        R['epsilon'] = float(epsilon)              # 字符串转为浮点
+        epsilon = input('please input epsilon =')         # 由终端输入的会记录为字符串形式
+        R['epsilon'] = float(epsilon)                     # 字符串转为浮点
 
         # 问题幂次
         order2p_laplace = input('please input the order(a int number) to p-laplace:')
         order = float(order2p_laplace)
         R['order2laplace'] = order
 
-    R['input_dim'] = 1                         # 输入维数，即问题的维数(几元问题)
-    R['output_dim'] = 1                        # 输出维数
-    R['variational_loss'] = 1                  # PDE变分
+    R['input_dim'] = 1                                    # 输入维数，即问题的维数(几元问题)
+    R['output_dim'] = 1                                   # 输出维数
+    R['variational_loss'] = 1                             # PDE变分
+    R['freqs'] = np.concatenate(([1], np.arange(1, 100 - 1)), axis=0)
 
     # ---------------------------- Setup of DNN -------------------------------
-    R['batch_size2interior'] = 3000            # 内部训练数据的批大小
-    R['batch_size2boundary'] = 500             # 边界训练数据大小
+    R['batch_size2interior'] = 3000                       # 内部训练数据的批大小
+    R['batch_size2boundary'] = 500                        # 边界训练数据大小
 
     R['weight_biases_model'] = 'general_model'
     # R['weight_biases_model'] = 'phase_shift_model'
@@ -432,9 +438,9 @@ if __name__ == "__main__":
     R['regular_weight_model'] = 'L0'
     # R['regular_weight_model'] = 'L1'
     # R['regular_weight_model'] = 'L2'
-    R['regular_weight_biases'] = 0.000     # Regularization parameter for weights
-    # R['regular_weight_biases'] = 0.001  # Regularization parameter for weights
-    # R['regular_weight_biases'] = 0.0025  # Regularization parameter for weights
+    R['regular_weight_biases'] = 0.000                    # Regularization parameter for weights
+    # R['regular_weight_biases'] = 0.001                  # Regularization parameter for weights
+    # R['regular_weight_biases'] = 0.0025                 # Regularization parameter for weights
 
     R['activate_stage_penalty'] = 1
     R['boundary_penalty'] = 100                           # Regularization parameter for boundary conditions
@@ -443,7 +449,7 @@ if __name__ == "__main__":
     R['learning_rate_decay'] = 5e-5                       # 学习率 decay
     R['optimizer_name'] = 'Adam'                          # 优化器
 
-    R['hidden_layers'] = (80, 60, 40, 20, 10)
+    R['hidden_layers'] = (100, 80, 80, 60, 60, 40)
     # R['hidden_layers'] = (100, 80, 60, 60, 40, 40, 20)
     # R['hidden_layers'] = (200, 100, 80, 50, 30)
     # R['hidden_layers'] = (300, 200, 150, 150, 100, 50, 50)
@@ -456,18 +462,24 @@ if __name__ == "__main__":
     # R['hidden_layers'] = (1000, 500, 400, 300, 300, 200, 100, 100)
     # R['hidden_layers'] = (2000, 1500, 1000, 500, 250)
 
-    # R['model'] = 'PDE_DNN'                           # 使用的网络模型
+    # R['model'] = 'PDE_DNN'                               # 使用的网络模型
     # R['model'] = 'PDE_DNN_BN'
     # R['model'] = 'PDE_DNN_scale'
     # R['model'] = 'PDE_DNN_adapt_scale'
     R['model'] = 'PDE_DNN_FourierBase'
+    # R['model'] = 'PDE_DNN_WaveletBase'
     # R['model'] = 'PDE_CPDNN'
 
     # R['activate_func'] = 'relu'
     # R['activate_func'] = 'tanh'
+    # R['activate_func'] = 'sintanh'
     # R['activate_func']' = leaky_relu'
     # R['activate_func'] = 'srelu'
     R['activate_func'] = 's2relu'
+    # R['activate_func'] = 'gauss'
+    # R['activate_func'] = 'singauss'
+    # R['activate_func'] = 'metican'
+    # R['activate_func'] = 'modify_mexican'
     # R['activate_func'] = 'leaklysrelu'
     # R['activate_func'] = 'slrelu'
     # R['activate_func'] = 'elu'

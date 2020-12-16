@@ -193,14 +193,30 @@ def plotTrain_MSE_REL_1act_func(data2mse, data2rel, actName=None, seedNo=1000, o
     # plt.title('training error', fontsize=15)
     if str.lower(actName) == 'srelu':
         fntmp = '%s/%strainErr_%s' % (outPath, seedNo, 'sReLU')
+    elif str.lower(actName) == 'sin':
+        fntmp = '%s/%strainErr_%s' % (outPath, seedNo, 'sin')
     elif str.lower(actName) == 's2relu':
         fntmp = '%s/%strainErr_%s' % (outPath, seedNo, 's2ReLU')
+    elif str.lower(actName) == 'csrelu':
+        fntmp = '%s/%strainErr_%s' % (outPath, seedNo, 'CsReLU')
     elif str.lower(actName) == 'relu':
         fntmp = '%s/%strainErr_%s' % (outPath, seedNo, 'ReLU')
     elif str.lower(actName) == 'elu':
         fntmp = '%s/%strainErr_%s' % (outPath, seedNo, 'elu')
     elif str.lower(actName) == 'tanh':
         fntmp = '%s/%strainErr_%s' % (outPath, seedNo, 'tanh')
+    elif str.lower(actName) == 'sintanh':
+        fntmp = '%s/%strainErr_%s' % (outPath, seedNo, 'sintanh')
+    elif str.lower(actName) == 'singauss':
+        fntmp = '%s/%strainErr_%s' % (outPath, seedNo, 'singauss')
+    elif str.lower(actName) == 'gauss':
+        fntmp = '%s/%strainErr_%s' % (outPath, seedNo, 'gauss')
+    elif str.lower(actName) == 'mexican':
+        fntmp = '%s/%strainErr_%s' % (outPath, seedNo, 'mexican')
+    elif str.lower(actName) == 'modify_mexican':
+        fntmp = '%s/%s_%s' % (outPath, seedNo, 'Ummexican2test')
+    elif str.lower(actName) == 'sin_modify_mexican':
+        fntmp = '%s/%s_%s' % (outPath, seedNo, 'Usm_mexican2test')
     DNN_tools.mySaveFig(plt, fntmp, ax=ax, isax=1, iseps=0)
 
 
@@ -629,10 +645,24 @@ def plot_Hot_solution2test(solu2test, size_vec2mat=20, actName=None, seedNo=1000
         fntmp = '%s/%s_%s' % (outPath, seedNo, 'UsReLU2test')
     elif str.lower(actName) == 's2relu':
         fntmp = '%s/%s_%s' % (outPath, seedNo, 'Us2ReLU2test')
+    elif str.lower(actName) == 'csrelu':
+        fntmp = '%s/%s_%s' % (outPath, seedNo, 'UCsReLU2test')
     elif str.lower(actName) == 'relu':
         fntmp = '%s/%s_%s' % (outPath, seedNo, 'UReLU2test')
     elif str.lower(actName) == 'tanh':
         fntmp = '%s/%s_%s' % (outPath, seedNo, 'Utanh2test')
+    elif str.lower(actName) == 'sintanh':
+        fntmp = '%s/%s_%s' % (outPath, seedNo, 'Ustanh2test')
+    elif str.lower(actName) == 'singauss':
+        fntmp = '%s/%s_%s' % (outPath, seedNo, 'Usgauss2test')
+    elif str.lower(actName) == 'gauss':
+        fntmp = '%s/%s_%s' % (outPath, seedNo, 'Ugauss2test')
+    elif str.lower(actName) == 'mexican':
+        fntmp = '%s/%s_%s' % (outPath, seedNo, 'Umexican2test')
+    elif str.lower(actName) == 'modify_mexican':
+        fntmp = '%s/%s_%s' % (outPath, seedNo, 'Ummexican2test')
+    elif str.lower(actName) == 'sin_modify_mexican':
+        fntmp = '%s/%s_%s' % (outPath, seedNo, 'Usm-mexican2test')
     DNN_tools.mySaveFig(plt, fntmp, ax=ax, isax=1, iseps=0)
 
 
@@ -702,8 +732,26 @@ def plot_Hot_point_wise_err(point_wise_err, size_vec2mat=20, actName=None, seedN
         fntmp = '%s/%spErr_%s' % (outPath, seedNo, 'sReLU')
     elif str.lower(actName) == 's2relu':
         fntmp = '%s/%spErr_%s' % (outPath, seedNo, 's2ReLU')
+    elif str.lower(actName) == 'csrelu':
+        fntmp = '%s/%spErr_%s' % (outPath, seedNo, 'CsReLU')
     elif str.lower(actName) == 'relu':
         fntmp = '%s/%spErr_%s' % (outPath, seedNo, 'ReLU')
+    elif str.lower(actName) == 'tanh':
+        fntmp = '%s/%spErr_%s' % (outPath, seedNo, 'tanh')
+    elif str.lower(actName) == 'sin':
+        fntmp = '%s/%spErr_%s' % (outPath, seedNo, 'sin')
+    elif str.lower(actName) == 'sintanh':
+        fntmp = '%s/%spErr_%s' % (outPath, seedNo, 'stanh')
+    elif str.lower(actName) == 'singauss':
+        fntmp = '%s/%spErr_%s' % (outPath, seedNo, 'sgauss')
+    elif str.lower(actName) == 'gauss':
+        fntmp = '%s/%spErr_%s' % (outPath, seedNo, 'gauss')
+    elif str.lower(actName) == 'mexican':
+        fntmp = '%s/%spErr_%s' % (outPath, seedNo, 'mexican')
+    elif str.lower(actName) == 'modify_mexican':
+        fntmp = '%s/%spErr_%s' % (outPath, seedNo, 'mmexican')
+    elif str.lower(actName) == 'sin_modify_mexican':
+        fntmp = '%s/%spErr_%s' % (outPath, seedNo, 'sm-mexican')
 
     DNN_tools.mySaveFig(plt, fntmp, ax=ax, isax=1, iseps=0)
 

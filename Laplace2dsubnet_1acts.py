@@ -57,7 +57,8 @@ def solve_laplace(R):
     log_out_path = R['FolderName']        # 将路径从字典 R 中提取出来
     if not os.path.exists(log_out_path):  # 判断路径是否已经存在
         os.mkdir(log_out_path)            # 无 log_out_path 路径，创建一个 log_out_path 路径
-    log_fileout = open(os.path.join(log_out_path, 'log_Laplace.txt'), 'w')  # 在这个路径下创建并打开一个可写的 log_train.txt文件
+    logfile_name = '%s%s.txt' % ('log2', R['activate_func'])
+    log_fileout = open(os.path.join(log_out_path, logfile_name), 'w')  # 在这个路径下创建并打开一个可写的 log_train.txt文件
     dictionary_out2file(R, log_fileout)
 
     # 一般 laplace 问题需要的设置
@@ -172,8 +173,11 @@ def solve_laplace(R):
                 UBottom_NN = DNN_base.PDE_DNN_scale(XY_bottom_bd, W2NN, B2NN, hidden_layers, freq, activate_name=act_func)
                 UTop_NN = DNN_base.PDE_DNN_scale(XY_top_bd, W2NN, B2NN, hidden_layers, freq, activate_name=act_func)
             elif R['model'] == 'PDE_subDNNs_scale':
-                # 在变量的内部区域训练
-                freq = np.concatenate(([1], np.arange(1, 100 - 1)), axis=0)
+                base_freqs = np.arange(1, 11)
+                base_freqs = np.concatenate(([1, 2, 3, 4, 5], base_freqs), 0)
+                high_freqs = np.arange(91, 100)
+                freq = np.concatenate(([1], base_freqs, 2 * base_freqs, 4 * base_freqs, 6 * base_freqs, 8 * base_freqs,
+                                       10 * base_freqs, high_freqs), axis=0)
                 U_NN = DNN_base.PDE_subDNNs_scale(XY_it, WNN_lists, BNN_lists, hidden_layers, freq, activate_name=act_func)
                 ULeft_NN = DNN_base.PDE_subDNNs_scale(XY_left_bd, WNN_lists, BNN_lists, hidden_layers, freq, activate_name=act_func)
                 URight_NN = DNN_base.PDE_subDNNs_scale(XY_right_bd, WNN_lists, BNN_lists, hidden_layers, freq, activate_name=act_func)
@@ -201,7 +205,11 @@ def solve_laplace(R):
                 UBottom_NN = DNN_base.PDE_DNN_FourierBase(XY_bottom_bd, W2NN, B2NN, hidden_layers, freqs, activate_name=act_func)
                 UTop_NN = DNN_base.PDE_DNN_FourierBase(XY_top_bd, W2NN, B2NN, hidden_layers, freqs, activate_name=act_func)
             elif R['model'] == 'PDE_subDNNs_FourierBase':
-                freqs = np.concatenate(([1], np.arange(1, 100 - 1)), axis=0)
+                base_freqs = np.arange(1, 11)
+                base_freqs = np.concatenate(([1, 2, 3, 4, 5], base_freqs), 0)
+                high_freqs = np.arange(91, 100)
+                freqs = np.concatenate(([1], base_freqs, 2 * base_freqs, 4 * base_freqs, 6 * base_freqs, 8 * base_freqs,
+                                       10 * base_freqs, high_freqs), axis=0)
                 U_NN = DNN_base.PDE_subDNNs_FourierBase(XY_it, WNN_lists, BNN_lists, hidden_layers, freqs, activate_name=act_func)
                 ULeft_NN = DNN_base.PDE_subDNNs_FourierBase(XY_left_bd, WNN_lists, BNN_lists, hidden_layers, freqs, activate_name=act_func)
                 URight_NN = DNN_base.PDE_subDNNs_FourierBase(XY_right_bd, WNN_lists, BNN_lists, hidden_layers, freqs, activate_name=act_func)
@@ -498,8 +506,8 @@ if __name__ == "__main__":
     R['laplace_opt'] = 'p_laplace2multi_scale_implicit'
     # R['equa_name'] = 'multi_scale2D_1'
     # R['equa_name'] = 'multi_scale2D_2'
-    R['equa_name'] = 'multi_scale2D_3'
-    # R['equa_name'] = 'multi_scale2D_4'
+    # R['equa_name'] = 'multi_scale2D_3'
+    R['equa_name'] = 'multi_scale2D_4'
 
     # R['laplace_opt'] = 'p_laplace2multi_scale_explicit'
     # R['equa_name'] = 'multi_scale2D_6'
@@ -568,6 +576,7 @@ if __name__ == "__main__":
     R['train_group'] = 0
 
     # R['hidden_layers'] = (10, 8, 6, 4, 2)
+    # R['hidden_layers'] = (20, 20, 15, 10, 10)
     R['hidden_layers'] = (30, 20, 20, 15, 15, 10)
     # R['hidden_layers'] = (100, 80, 60, 60, 40, 40, 20)
     # R['hidden_layers'] = (200, 100, 80, 50, 30)
@@ -592,12 +601,15 @@ if __name__ == "__main__":
 
     # R['activate_func'] = 'relu'
     # R['activate_func'] = 'tanh'
+    # R['activate_func'] = 'sintanh'
     # R['activate_func']' = leaky_relu'
     # R['activate_func'] = 'srelu'
-    # R['activate_func'] = 'sintanh'
     R['activate_func'] = 's2relu'
-    # R['activate_func'] = 'leaky_srelu'
-    # R['activate_func'] = 'modified_leaky_srelu'
+    # R['activate_func'] = 'gauss'
+    # R['activate_func'] = 'metican'
+    # R['activate_func'] = 'modify_mexican'
+    # R['activate_func'] = 'singauss'
+    # R['activate_func'] = 'leaklysrelu'
     # R['activate_func'] = 'slrelu'
     # R['activate_func'] = 'elu'
     # R['activate_func'] = 'selu'

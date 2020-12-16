@@ -10,6 +10,7 @@ import matplotlib
 import platform
 import shutil
 import time
+import CPDNN_base
 import DNN_base
 import DNN_tools
 import DNN_data
@@ -149,39 +150,39 @@ def solve_laplace(R):
             elif R['model'] == 'PDE_DNN_BN':
                 # 在变量的内部区域训练
                 U_NN = DNN_base.PDE_DNN_BN(XY_it, W2NN, B2NN, hidden_layers, activate_name=act_func, is_training=train_opt)
-                ULeft_NN = DNN_base.PDE_DNN_BN(XY_left_bd, W2NN, B2NN, hidden_layers, activate_name=act_func, is_training=train_opt)
-                URight_NN = DNN_base.PDE_DNN_BN(XY_right_bd, W2NN, B2NN, hidden_layers, activate_name=act_func, is_training=train_opt)
-                UBottom_NN = DNN_base.PDE_DNN_BN(XY_bottom_bd, W2NN, B2NN, hidden_layers, activate_name=act_func, is_training=train_opt)
-                UTop_NN = DNN_base.PDE_DNN_BN(XY_top_bd, W2NN, B2NN, hidden_layers, activate_name=act_func, is_training=train_opt)
+                ULeft_NN = DNN_base.PDE_DNN(XY_left_bd, W2NN, B2NN, hidden_layers, activate_name=act_func)
+                URight_NN = DNN_base.PDE_DNN(XY_right_bd, W2NN, B2NN, hidden_layers, activate_name=act_func)
+                UBottom_NN = DNN_base.PDE_DNN(XY_bottom_bd, W2NN, B2NN, hidden_layers, activate_name=act_func)
+                UTop_NN = DNN_base.PDE_DNN(XY_top_bd, W2NN, B2NN, hidden_layers, activate_name=act_func)
             elif R['model'] == 'PDE_DNN_scale':
                 # 在变量的内部区域训练
                 freq = R['freqs']
                 U_NN = DNN_base.PDE_DNN_scale(XY_it, W2NN, B2NN, hidden_layers, freq, activate_name=act_func)
-                ULeft_NN = DNN_base.PDE_DNN_scale(XY_left_bd, W2NN, B2NN, hidden_layers, freq, activate_name=act_func)
-                URight_NN = DNN_base.PDE_DNN_scale(XY_right_bd, W2NN, B2NN, hidden_layers, freq, activate_name=act_func)
-                UBottom_NN = DNN_base.PDE_DNN_scale(XY_bottom_bd, W2NN, B2NN, hidden_layers, freq, activate_name=act_func)
-                UTop_NN = DNN_base.PDE_DNN_scale(XY_top_bd, W2NN, B2NN, hidden_layers, freq, activate_name=act_func)
+                ULeft_NN = DNN_base.PDE_DNN(XY_left_bd, W2NN, B2NN, hidden_layers, activate_name=act_func)
+                URight_NN = DNN_base.PDE_DNN(XY_right_bd, W2NN, B2NN, hidden_layers, activate_name=act_func)
+                UBottom_NN = DNN_base.PDE_DNN(XY_bottom_bd, W2NN, B2NN, hidden_layers, activate_name=act_func)
+                UTop_NN = DNN_base.PDE_DNN(XY_top_bd, W2NN, B2NN, hidden_layers, activate_name=act_func)
             elif R['model'] == 'PDE_DNN_adapt_scale':
                 freqs = R['freqs']
                 U_NN = DNN_base.PDE_DNN_adapt_scale(XY_it, W2NN, B2NN, hidden_layers, freqs, activate_name=act_func)
-                ULeft_NN = DNN_base.PDE_DNN_adapt_scale(XY_left_bd, W2NN, B2NN, hidden_layers, freqs, activate_name=act_func)
-                URight_NN = DNN_base.PDE_DNN_adapt_scale(XY_right_bd, W2NN, B2NN, hidden_layers, freqs, activate_name=act_func)
-                UBottom_NN = DNN_base.PDE_DNN_adapt_scale(XY_bottom_bd, W2NN, B2NN, hidden_layers, freqs, activate_name=act_func)
-                UTop_NN = DNN_base.PDE_DNN_adapt_scale(XY_top_bd, W2NN, B2NN, hidden_layers, freqs, activate_name=act_func)
+                ULeft_NN = DNN_base.PDE_DNN(XY_left_bd, W2NN, B2NN, hidden_layers, activate_name=act_func)
+                URight_NN = DNN_base.PDE_DNN(XY_right_bd, W2NN, B2NN, hidden_layers, activate_name=act_func)
+                UBottom_NN = DNN_base.PDE_DNN(XY_bottom_bd, W2NN, B2NN, hidden_layers, activate_name=act_func)
+                UTop_NN = DNN_base.PDE_DNN(XY_top_bd, W2NN, B2NN, hidden_layers, activate_name=act_func)
             elif R['model'] == 'PDE_DNN_FourierBase':
                 freqs = R['freqs']
                 U_NN = DNN_base.PDE_DNN_FourierBase(XY_it, W2NN, B2NN, hidden_layers, freqs, activate_name=act_func)
-                ULeft_NN = DNN_base.PDE_DNN_FourierBase(XY_left_bd, W2NN, B2NN, hidden_layers, freqs, activate_name=act_func)
-                URight_NN = DNN_base.PDE_DNN_FourierBase(XY_right_bd, W2NN, B2NN, hidden_layers, freqs, activate_name=act_func)
-                UBottom_NN = DNN_base.PDE_DNN_FourierBase(XY_bottom_bd, W2NN, B2NN, hidden_layers, freqs, activate_name=act_func)
-                UTop_NN = DNN_base.PDE_DNN_FourierBase(XY_top_bd, W2NN, B2NN, hidden_layers, freqs, activate_name=act_func)
+                ULeft_NN = DNN_base.PDE_DNN(XY_left_bd, W2NN, B2NN, hidden_layers, activate_name=act_func)
+                URight_NN = DNN_base.PDE_DNN(XY_right_bd, W2NN, B2NN, hidden_layers, activate_name=act_func)
+                UBottom_NN = DNN_base.PDE_DNN(XY_bottom_bd, W2NN, B2NN, hidden_layers, activate_name=act_func)
+                UTop_NN = DNN_base.PDE_DNN(XY_top_bd, W2NN, B2NN, hidden_layers, activate_name=act_func)
             elif R['model'] == 'PDE_DNN_WaveletBase':
                 freqs = R['freqs']
                 U_NN = DNN_base.PDE_DNN_WaveletBase(XY_it, W2NN, B2NN, hidden_layers, freqs, activate_name=act_func)
-                ULeft_NN = DNN_base.PDE_DNN_WaveletBase(XY_left_bd, W2NN, B2NN, hidden_layers, freqs, activate_name=act_func)
-                URight_NN = DNN_base.PDE_DNN_WaveletBase(XY_right_bd, W2NN, B2NN, hidden_layers, freqs, activate_name=act_func)
-                UBottom_NN = DNN_base.PDE_DNN_WaveletBase(XY_bottom_bd, W2NN, B2NN, hidden_layers, freqs, activate_name=act_func)
-                UTop_NN = DNN_base.PDE_DNN_WaveletBase(XY_top_bd, W2NN, B2NN, hidden_layers, freqs, activate_name=act_func)
+                ULeft_NN = DNN_base.PDE_DNN(XY_left_bd, W2NN, B2NN, hidden_layers, activate_name=act_func)
+                URight_NN = DNN_base.PDE_DNN(XY_right_bd, W2NN, B2NN, hidden_layers, activate_name=act_func)
+                UBottom_NN = DNN_base.PDE_DNN(XY_bottom_bd, W2NN, B2NN, hidden_layers, activate_name=act_func)
+                UTop_NN = DNN_base.PDE_DNN(XY_top_bd, W2NN, B2NN, hidden_layers, activate_name=act_func)
 
             X_it = tf.reshape(XY_it[:, 0], shape=[-1, 1])
             Y_it = tf.reshape(XY_it[:, 1], shape=[-1, 1])
@@ -477,44 +478,44 @@ if __name__ == "__main__":
         R['mesh_number'] = 1
         R['epsilon'] = 0.1
         R['order2laplace'] = 2
-        R['batch_size2interior'] = 3000                       # 内部训练数据的批大小
+        R['batch_size2interior'] = 3000  # 内部训练数据的批大小
         R['batch_size2boundary'] = 500
     elif R['laplace_opt'] == 'p_laplace2multi_scale_implicit':
         # 频率设置
-        mesh_number = input('please input mesh_number =')     # 由终端输入的会记录为字符串形式
-        R['mesh_number'] = int(mesh_number)                   # 字符串转为浮点
+        mesh_number = input('please input mesh_number =')  # 由终端输入的会记录为字符串形式
+        R['mesh_number'] = int(mesh_number)  # 字符串转为浮点
 
         # 频率设置
-        epsilon = input('please input epsilon =')       # 由终端输入的会记录为字符串形式
-        R['epsilon'] = float(epsilon)                   # 字符串转为浮点
+        epsilon = input('please input epsilon =')  # 由终端输入的会记录为字符串形式
+        R['epsilon'] = float(epsilon)  # 字符串转为浮点
 
         # 问题幂次
         order2p_laplace = input('please input the order(a int number) to p-laplace:')
         order = float(order2p_laplace)
         R['order2laplace'] = order
 
-        R['batch_size2interior'] = 3000                 # 内部训练数据的批大小
+        R['batch_size2interior'] = 3000  # 内部训练数据的批大小
         if R['mesh_number'] == 2:
-            R['batch_size2boundary'] = 25               # 边界训练数据的批大小
+            R['batch_size2boundary'] = 25  # 边界训练数据的批大小
         elif R['mesh_number'] == 3:
-            R['batch_size2boundary'] = 100              # 边界训练数据的批大小
+            R['batch_size2boundary'] = 100  # 边界训练数据的批大小
         elif R['mesh_number'] == 4:
-            R['batch_size2boundary'] = 200              # 边界训练数据的批大小
+            R['batch_size2boundary'] = 200  # 边界训练数据的批大小
         elif R['mesh_number'] == 5:
-            R['batch_size2boundary'] = 300              # 边界训练数据的批大小
+            R['batch_size2boundary'] = 300  # 边界训练数据的批大小
         elif R['mesh_number'] == 6:
-            R['batch_size2boundary'] = 500              # 边界训练数据的批大小
+            R['batch_size2boundary'] = 500  # 边界训练数据的批大小
     elif R['laplace_opt'] == 'p_laplace2multi_scale_explicit':
         # 频率设置
-        epsilon = input('please input epsilon =')       # 由终端输入的会记录为字符串形式
-        R['epsilon'] = float(epsilon)                   # 字符串转为浮点
+        epsilon = input('please input epsilon =')  # 由终端输入的会记录为字符串形式
+        R['epsilon'] = float(epsilon)  # 字符串转为浮点
 
         # 问题幂次
         order2p_laplace = input('please input the order(a int number) to p-laplace:')
         order = float(order2p_laplace)
         R['order2laplace'] = order
-        R['batch_size2interior'] = 3000                 # 内部训练数据的批大小
-        R['batch_size2boundary'] = 500                  # 边界训练数据的批大小
+        R['batch_size2interior'] = 3000  # 内部训练数据的批大小
+        R['batch_size2boundary'] = 500  # 边界训练数据的批大小
 
     # ---------------------------- Setup of DNN -------------------------------
     R['weight_biases_model'] = 'general_model'
@@ -523,9 +524,9 @@ if __name__ == "__main__":
     R['regular_weight_model'] = 'L0'
     # R['regular_weight_model'] = 'L1'
     # R['regular_weight_model'] = 'L2'
-    R['regular_weight_biases'] = 0.000                    # Regularization parameter for weights
+    R['regular_weight_biases'] = 0.000  # Regularization parameter for weights
     # R['regular_weight_biases'] = 0.001                  # Regularization parameter for weights
-    # R['regular_weight_biases'] = 0.0025                 # Regularization parameter for weights
+    # R['regular_weight_biases'] = 0.0025                   # Regularization parameter for weights
 
     R['activate_penalty2bd_increase'] = 0
     R['boundary_penalty'] = 1000                          # Regularization parameter for boundary conditions
@@ -561,12 +562,11 @@ if __name__ == "__main__":
     # R['activate_func'] = 'sintanh'
     # R['activate_func']' = leaky_relu'
     # R['activate_func'] = 'srelu'
-    # R['activate_func'] = 's2relu'
-    R['activate_func'] = 'csrelu'
+    R['activate_func'] = 's2relu'
     # R['activate_func'] = 'gauss'
-    # R['activate_func'] = 'singauss'
     # R['activate_func'] = 'metican'
     # R['activate_func'] = 'modify_mexican'
+    # R['activate_func'] = 'singauss'
     # R['activate_func'] = 'leaklysrelu'
     # R['activate_func'] = 'slrelu'
     # R['activate_func'] = 'elu'

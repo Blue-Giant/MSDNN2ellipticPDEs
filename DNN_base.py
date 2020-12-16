@@ -111,8 +111,45 @@ def s2relu(x):
     return tf.nn.relu(1-x)*tf.nn.relu(x)*tf.sin(2*np.pi*x)
 
 
+def csrelu(x):
+    return -tf.nn.relu(1-x)*tf.nn.relu(x)*tf.cos(2*np.pi*x)
+
+
 def stanh(x):
-    return tf.tanh(x)*tf.sin(2*np.pi*x)
+    # return tf.tanh(x)*tf.sin(2*np.pi*x)
+    return tf.sin(2*np.pi*tf.tanh(x))
+
+
+def gauss(x):
+    # return tf.exp(-0.5*x*x)
+    return 0.25*tf.exp(-7.5*(x-0.5)*(x-0.5))
+
+
+def mexican(x):
+    return (1-x*x)*tf.exp(-0.5*x*x)
+
+
+def modify_mexican(x):
+    # return 1.25*x*tf.exp(-0.25*x*x)
+    # return x * tf.exp(-0.125 * x * x)
+    return x * tf.exp(-0.075*x * x)
+    # return -1.25*x*tf.exp(-0.25*x*x)
+
+
+def sm_mexican(x):
+    # return tf.sin(np.pi*x) * x * tf.exp(-0.075*x * x)
+    # return tf.sin(np.pi*x) * x * tf.exp(-0.125*x * x)
+    return 2.0*tf.sin(np.pi*x) * x * tf.exp(-0.5*x * x)
+
+
+def singauss(x):
+    # return tf.exp(-0.25*x*x)*tf.sin(np.pi*x)
+    # return tf.exp(-(x-0.5) * (x - 0.5)) * tf.sin(np.pi * x)
+    # return 0.25*tf.exp(-5 * (x - 0.5) * (x - 0.5)) * tf.sin(2*np.pi * x)
+    return 0.4 * tf.exp(-10 * (x - 0.5) * (x - 0.5)) * tf.sin(2 * np.pi * x)
+    # return 0.45 * tf.exp(-5 * (x - 1.0) * (x - 1.0)) * tf.sin(np.pi * x)
+    # return 0.3 * tf.exp(-5 * (x - 1.0) * (x - 1.0)) * tf.sin(2 * np.pi * x)
+    # return tf.sin(2*np.pi*tf.exp(-0.5*x*x))
 
 
 def powsin_srelu(x):
@@ -363,31 +400,43 @@ def regular_weights_biases_L2(weights, biases):
 
 #  --------------------------------------------  网络模型 ------------------------------------------------------
 def PDE_DNN(variable_input, Weights, Biases, hiddens, activate_name=None):
-    if activate_name == 'relu':
+    if str.lower(activate_name) == 'relu':
         DNN_activation = tf.nn.relu
-    elif activate_name == 'leaky_relu':
+    elif str.lower(activate_name) == 'leaky_relu':
         DNN_activation = tf.nn.leaky_relu(0.2)
-    elif activate_name == 'elu':
-        DNN_activation = tf.nn.elu
-    elif activate_name == 'tanh':
-        DNN_activation = tf.nn.tanh
-    elif activate_name == 'sin':
-        DNN_activation = mysin
-    elif activate_name == 'srelu':
+    elif str.lower(activate_name) == 'srelu':
         DNN_activation = srelu
-    elif activate_name == 'sintanh':
-        DNN_activation = stanh
-    elif activate_name == 'powsin_srelu':
-        DNN_activation = powsin_srelu
-    elif activate_name == 's2relu':
+    elif str.lower(activate_name) == 's2relu':
         DNN_activation = s2relu
-    elif activate_name == 'sin2_srelu':
+    elif str.lower(activate_name) == 'csrelu':
+        DNN_activation = csrelu
+    elif str.lower(activate_name) == 'sin2_srelu':
         DNN_activation = sin2_srelu
-    elif activate_name == 'slrelu':
+    elif str.lower(activate_name) == 'powsin_srelu':
+        DNN_activation = powsin_srelu
+    elif str.lower(activate_name) == 'slrelu':
         DNN_activation = slrelu
-    elif activate_name == 'selu':
+    elif str.lower(activate_name) == 'elu':
+        DNN_activation = tf.nn.elu
+    elif str.lower(activate_name) == 'selu':
         DNN_activation = selu
-    elif activate_name == 'phi':
+    elif str.lower(activate_name) == 'sin':
+        DNN_activation = mysin
+    elif str.lower(activate_name) == 'tanh':
+        DNN_activation = tf.nn.tanh
+    elif str.lower(activate_name) == 'sintanh':
+        DNN_activation = stanh
+    elif str.lower(activate_name) == 'gauss':
+        DNN_activation = gauss
+    elif str.lower(activate_name) == 'singauss':
+        DNN_activation = singauss
+    elif str.lower(activate_name) == 'mexican':
+        DNN_activation = mexican
+    elif str.lower(activate_name) == 'modify_mexican':
+        DNN_activation = modify_mexican
+    elif str.lower(activate_name) == 'sin_modify_mexican':
+        DNN_activation = sm_mexican
+    elif str.lower(activate_name) == 'phi':
         DNN_activation = phi
 
     layers = len(hiddens) + 1               # 得到输入到输出的层数，即隐藏层层数
@@ -411,31 +460,43 @@ def PDE_DNN(variable_input, Weights, Biases, hiddens, activate_name=None):
 
 
 def PDE_DNN_BN(variable_input, Weights, Biases, hiddens, activate_name=None, is_training=None):
-    if activate_name == 'relu':
+    if str.lower(activate_name) == 'relu':
         DNN_activation = tf.nn.relu
-    elif activate_name == 'leaky_relu':
+    elif str.lower(activate_name) == 'leaky_relu':
         DNN_activation = tf.nn.leaky_relu(0.2)
-    elif activate_name == 'elu':
-        DNN_activation = tf.nn.elu
-    elif activate_name == 'tanh':
-        DNN_activation = tf.nn.tanh
-    elif activate_name == 'sin':
-        DNN_activation = mysin
-    elif activate_name == 'srelu':
+    elif str.lower(activate_name) == 'srelu':
         DNN_activation = srelu
-    elif activate_name == 'sintanh':
-        DNN_activation = stanh
-    elif activate_name == 'powsin_srelu':
-        DNN_activation = powsin_srelu
-    elif activate_name == 's2relu':
+    elif str.lower(activate_name) == 's2relu':
         DNN_activation = s2relu
-    elif activate_name == 'sin2_srelu':
+    elif str.lower(activate_name) == 'csrelu':
+        DNN_activation = csrelu
+    elif str.lower(activate_name) == 'sin2_srelu':
         DNN_activation = sin2_srelu
-    elif activate_name == 'slrelu':
+    elif str.lower(activate_name) == 'powsin_srelu':
+        DNN_activation = powsin_srelu
+    elif str.lower(activate_name) == 'slrelu':
         DNN_activation = slrelu
-    elif activate_name == 'selu':
+    elif str.lower(activate_name) == 'elu':
+        DNN_activation = tf.nn.elu
+    elif str.lower(activate_name) == 'selu':
         DNN_activation = selu
-    elif activate_name == 'phi':
+    elif str.lower(activate_name) == 'sin':
+        DNN_activation = mysin
+    elif str.lower(activate_name) == 'tanh':
+        DNN_activation = tf.nn.tanh
+    elif str.lower(activate_name) == 'sintanh':
+        DNN_activation = stanh
+    elif str.lower(activate_name) == 'gauss':
+        DNN_activation = gauss
+    elif str.lower(activate_name) == 'singauss':
+        DNN_activation = singauss
+    elif str.lower(activate_name) == 'mexican':
+        DNN_activation = mexican
+    elif str.lower(activate_name) == 'modify_mexican':
+        DNN_activation = modify_mexican
+    elif str.lower(activate_name) == 'sin_modify_mexican':
+        DNN_activation = sm_mexican
+    elif str.lower(activate_name) == 'phi':
         DNN_activation = phi
 
     layers = len(hiddens) + 1  # 得到输入到输出的层数，即隐藏层层数
@@ -460,31 +521,43 @@ def PDE_DNN_BN(variable_input, Weights, Biases, hiddens, activate_name=None, is_
 
 
 def PDE_DNN_scale(variable_input, Weights, Biases, hiddens, freq_frag, activate_name=None):
-    if activate_name == 'relu':
+    if str.lower(activate_name) == 'relu':
         DNN_activation = tf.nn.relu
-    elif activate_name == 'leaky_relu':
+    elif str.lower(activate_name) == 'leaky_relu':
         DNN_activation = tf.nn.leaky_relu(0.2)
-    elif activate_name == 'elu':
-        DNN_activation = tf.nn.elu
-    elif activate_name == 'tanh':
-        DNN_activation = tf.nn.tanh
-    elif activate_name == 'sin':
-        DNN_activation = mysin
-    elif activate_name == 'srelu':
+    elif str.lower(activate_name) == 'srelu':
         DNN_activation = srelu
-    elif activate_name == 'sintanh':
-        DNN_activation = stanh
-    elif activate_name == 'powsin_srelu':
-        DNN_activation = powsin_srelu
-    elif activate_name == 's2relu':
+    elif str.lower(activate_name) == 's2relu':
         DNN_activation = s2relu
-    elif activate_name == 'sin2_srelu':
+    elif str.lower(activate_name) == 'csrelu':
+        DNN_activation = csrelu
+    elif str.lower(activate_name) == 'sin2_srelu':
         DNN_activation = sin2_srelu
-    elif activate_name == 'slrelu':
+    elif str.lower(activate_name) == 'powsin_srelu':
+        DNN_activation = powsin_srelu
+    elif str.lower(activate_name) == 'slrelu':
         DNN_activation = slrelu
-    elif activate_name == 'selu':
+    elif str.lower(activate_name) == 'elu':
+        DNN_activation = tf.nn.elu
+    elif str.lower(activate_name) == 'selu':
         DNN_activation = selu
-    elif activate_name == 'phi':
+    elif str.lower(activate_name) == 'sin':
+        DNN_activation = mysin
+    elif str.lower(activate_name) == 'tanh':
+        DNN_activation = tf.nn.tanh
+    elif str.lower(activate_name) == 'sintanh':
+        DNN_activation = stanh
+    elif str.lower(activate_name) == 'gauss':
+        DNN_activation = gauss
+    elif str.lower(activate_name) == 'singauss':
+        DNN_activation = singauss
+    elif str.lower(activate_name) == 'mexican':
+        DNN_activation = mexican
+    elif str.lower(activate_name) == 'modify_mexican':
+        DNN_activation = modify_mexican
+    elif str.lower(activate_name) == 'sin_modify_mexican':
+        DNN_activation = sm_mexican
+    elif str.lower(activate_name) == 'phi':
         DNN_activation = phi
 
     Unit_num = int(hiddens[0] / len(freq_frag))
@@ -529,31 +602,43 @@ def PDE_DNN_scale(variable_input, Weights, Biases, hiddens, freq_frag, activate_
 
 
 def PDE_subDNNs_scale(variable_input, Wlists, Blists, hiddens, freq_frag, activate_name=None):
-    if activate_name == 'relu':
+    if str.lower(activate_name) == 'relu':
         DNN_activation = tf.nn.relu
-    elif activate_name == 'leaky_relu':
+    elif str.lower(activate_name) == 'leaky_relu':
         DNN_activation = tf.nn.leaky_relu(0.2)
-    elif activate_name == 'elu':
-        DNN_activation = tf.nn.elu
-    elif activate_name == 'tanh':
-        DNN_activation = tf.nn.tanh
-    elif activate_name == 'sin':
-        DNN_activation = mysin
-    elif activate_name == 'srelu':
+    elif str.lower(activate_name) == 'srelu':
         DNN_activation = srelu
-    elif activate_name == 'sintanh':
-        DNN_activation = stanh
-    elif activate_name == 'powsin_srelu':
-        DNN_activation = powsin_srelu
-    elif activate_name == 's2relu':
+    elif str.lower(activate_name) == 's2relu':
         DNN_activation = s2relu
-    elif activate_name == 'sin2_srelu':
+    elif str.lower(activate_name) == 'csrelu':
+        DNN_activation = csrelu
+    elif str.lower(activate_name) == 'sin2_srelu':
         DNN_activation = sin2_srelu
-    elif activate_name == 'slrelu':
+    elif str.lower(activate_name) == 'powsin_srelu':
+        DNN_activation = powsin_srelu
+    elif str.lower(activate_name) == 'slrelu':
         DNN_activation = slrelu
-    elif activate_name == 'selu':
+    elif str.lower(activate_name) == 'elu':
+        DNN_activation = tf.nn.elu
+    elif str.lower(activate_name) == 'selu':
         DNN_activation = selu
-    elif activate_name == 'phi':
+    elif str.lower(activate_name) == 'sin':
+        DNN_activation = mysin
+    elif str.lower(activate_name) == 'tanh':
+        DNN_activation = tf.nn.tanh
+    elif str.lower(activate_name) == 'sintanh':
+        DNN_activation = stanh
+    elif str.lower(activate_name) == 'gauss':
+        DNN_activation = gauss
+    elif str.lower(activate_name) == 'singauss':
+        DNN_activation = singauss
+    elif str.lower(activate_name) == 'mexican':
+        DNN_activation = mexican
+    elif str.lower(activate_name) == 'modify_mexican':
+        DNN_activation = modify_mexican
+    elif str.lower(activate_name) == 'sin_modify_mexican':
+        DNN_activation = sm_mexican
+    elif str.lower(activate_name) == 'phi':
         DNN_activation = phi
 
     freqs_parts = []
@@ -616,31 +701,43 @@ def PDE_subDNNs_scale(variable_input, Wlists, Blists, hiddens, freq_frag, activa
 
 
 def PDE_DNN_adapt_scale(variable_input, Weights, Biases, hiddens, freq_frag, activate_name=None):
-    if activate_name == 'relu':
+    if str.lower(activate_name) == 'relu':
         DNN_activation = tf.nn.relu
-    elif activate_name == 'leaky_relu':
+    elif str.lower(activate_name) == 'leaky_relu':
         DNN_activation = tf.nn.leaky_relu(0.2)
-    elif activate_name == 'elu':
-        DNN_activation = tf.nn.elu
-    elif activate_name == 'tanh':
-        DNN_activation = tf.nn.tanh
-    elif activate_name == 'sin':
-        DNN_activation = mysin
-    elif activate_name == 'srelu':
+    elif str.lower(activate_name) == 'srelu':
         DNN_activation = srelu
-    elif activate_name == 'sintanh':
-        DNN_activation = stanh
-    elif activate_name == 'powsin_srelu':
-        DNN_activation = powsin_srelu
-    elif activate_name == 's2relu':
+    elif str.lower(activate_name) == 's2relu':
         DNN_activation = s2relu
-    elif activate_name == 'sin2_srelu':
+    elif str.lower(activate_name) == 'csrelu':
+        DNN_activation = csrelu
+    elif str.lower(activate_name) == 'sin2_srelu':
         DNN_activation = sin2_srelu
-    elif activate_name == 'slrelu':
+    elif str.lower(activate_name) == 'powsin_srelu':
+        DNN_activation = powsin_srelu
+    elif str.lower(activate_name) == 'slrelu':
         DNN_activation = slrelu
-    elif activate_name == 'selu':
+    elif str.lower(activate_name) == 'elu':
+        DNN_activation = tf.nn.elu
+    elif str.lower(activate_name) == 'selu':
         DNN_activation = selu
-    elif activate_name == 'phi':
+    elif str.lower(activate_name) == 'sin':
+        DNN_activation = mysin
+    elif str.lower(activate_name) == 'tanh':
+        DNN_activation = tf.nn.tanh
+    elif str.lower(activate_name) == 'sintanh':
+        DNN_activation = stanh
+    elif str.lower(activate_name) == 'gauss':
+        DNN_activation = gauss
+    elif str.lower(activate_name) == 'singauss':
+        DNN_activation = singauss
+    elif str.lower(activate_name) == 'mexican':
+        DNN_activation = mexican
+    elif str.lower(activate_name) == 'modify_mexican':
+        DNN_activation = modify_mexican
+    elif str.lower(activate_name) == 'sin_modify_mexican':
+        DNN_activation = sm_mexican
+    elif str.lower(activate_name) == 'phi':
         DNN_activation = phi
 
     Unit_num = int(hiddens[0] / len(freq_frag))
@@ -689,31 +786,43 @@ def PDE_DNN_adapt_scale(variable_input, Weights, Biases, hiddens, freq_frag, act
 
 
 def PDE_subDNNs_adapt_scale(variable_input, Wlists, Blists, hiddens, freq_frag, activate_name=None):
-    if activate_name == 'relu':
+    if str.lower(activate_name) == 'relu':
         DNN_activation = tf.nn.relu
-    elif activate_name == 'leaky_relu':
+    elif str.lower(activate_name) == 'leaky_relu':
         DNN_activation = tf.nn.leaky_relu(0.2)
-    elif activate_name == 'elu':
-        DNN_activation = tf.nn.elu
-    elif activate_name == 'tanh':
-        DNN_activation = tf.nn.tanh
-    elif activate_name == 'sin':
-        DNN_activation = mysin
-    elif activate_name == 'srelu':
+    elif str.lower(activate_name) == 'srelu':
         DNN_activation = srelu
-    elif activate_name == 'sintanh':
-        DNN_activation = stanh
-    elif activate_name == 'powsin_srelu':
-        DNN_activation = powsin_srelu
-    elif activate_name == 's2relu':
+    elif str.lower(activate_name) == 's2relu':
         DNN_activation = s2relu
-    elif activate_name == 'sin2_srelu':
+    elif str.lower(activate_name) == 'csrelu':
+        DNN_activation = csrelu
+    elif str.lower(activate_name) == 'sin2_srelu':
         DNN_activation = sin2_srelu
-    elif activate_name == 'slrelu':
+    elif str.lower(activate_name) == 'powsin_srelu':
+        DNN_activation = powsin_srelu
+    elif str.lower(activate_name) == 'slrelu':
         DNN_activation = slrelu
-    elif activate_name == 'selu':
+    elif str.lower(activate_name) == 'elu':
+        DNN_activation = tf.nn.elu
+    elif str.lower(activate_name) == 'selu':
         DNN_activation = selu
-    elif activate_name == 'phi':
+    elif str.lower(activate_name) == 'sin':
+        DNN_activation = mysin
+    elif str.lower(activate_name) == 'tanh':
+        DNN_activation = tf.nn.tanh
+    elif str.lower(activate_name) == 'sintanh':
+        DNN_activation = stanh
+    elif str.lower(activate_name) == 'gauss':
+        DNN_activation = gauss
+    elif str.lower(activate_name) == 'singauss':
+        DNN_activation = singauss
+    elif str.lower(activate_name) == 'mexican':
+        DNN_activation = mexican
+    elif str.lower(activate_name) == 'modify_mexican':
+        DNN_activation = modify_mexican
+    elif str.lower(activate_name) == 'sin_modify_mexican':
+        DNN_activation = sm_mexican
+    elif str.lower(activate_name) == 'phi':
         DNN_activation = phi
 
     freqs_parts = []
@@ -775,31 +884,43 @@ def PDE_subDNNs_adapt_scale(variable_input, Wlists, Blists, hiddens, freq_frag, 
 
 
 def PDE_DNN_FourierBase(variable_input, Weights, Biases, hiddens, freq_frag, activate_name=None):
-    if activate_name == 'relu':
+    if str.lower(activate_name) == 'relu':
         DNN_activation = tf.nn.relu
-    elif activate_name == 'leaky_relu':
+    elif str.lower(activate_name) == 'leaky_relu':
         DNN_activation = tf.nn.leaky_relu(0.2)
-    elif activate_name == 'elu':
-        DNN_activation = tf.nn.elu
-    elif activate_name == 'tanh':
-        DNN_activation = tf.nn.tanh
-    elif activate_name == 'sin':
-        DNN_activation = mysin
-    elif activate_name == 'srelu':
+    elif str.lower(activate_name) == 'srelu':
         DNN_activation = srelu
-    elif activate_name == 'sintanh':
-        DNN_activation = stanh
-    elif activate_name == 'powsin_srelu':
-        DNN_activation = powsin_srelu
-    elif activate_name == 's2relu':
+    elif str.lower(activate_name) == 's2relu':
         DNN_activation = s2relu
-    elif activate_name == 'sin2_srelu':
+    elif str.lower(activate_name) == 'csrelu':
+        DNN_activation = csrelu
+    elif str.lower(activate_name) == 'sin2_srelu':
         DNN_activation = sin2_srelu
-    elif activate_name == 'slrelu':
+    elif str.lower(activate_name) == 'powsin_srelu':
+        DNN_activation = powsin_srelu
+    elif str.lower(activate_name) == 'slrelu':
         DNN_activation = slrelu
-    elif activate_name == 'selu':
+    elif str.lower(activate_name) == 'elu':
+        DNN_activation = tf.nn.elu
+    elif str.lower(activate_name) == 'selu':
         DNN_activation = selu
-    elif activate_name == 'phi':
+    elif str.lower(activate_name) == 'sin':
+        DNN_activation = mysin
+    elif str.lower(activate_name) == 'tanh':
+        DNN_activation = tf.nn.tanh
+    elif str.lower(activate_name) == 'sintanh':
+        DNN_activation = stanh
+    elif str.lower(activate_name) == 'gauss':
+        DNN_activation = gauss
+    elif str.lower(activate_name) == 'singauss':
+        DNN_activation = singauss
+    elif str.lower(activate_name) == 'mexican':
+        DNN_activation = mexican
+    elif str.lower(activate_name) == 'modify_mexican':
+        DNN_activation = modify_mexican
+    elif str.lower(activate_name) == 'sin_modify_mexican':
+        DNN_activation = sm_mexican
+    elif str.lower(activate_name) == 'phi':
         DNN_activation = phi
 
     layers = len(hiddens) + 1                   # 得到输入到输出的层数，即隐藏层层数
@@ -824,8 +945,13 @@ def PDE_DNN_FourierBase(variable_input, Weights, Biases, hiddens, freq_frag, act
     if len(freq_frag) == 1:
         H = tf.add(tf.matmul(H, W_in), B_in)
     else:
-        H = tf.add(tf.matmul(H, W_in)*mixcoe, B_in)
-    H = tf.sin(H)
+        # H = tf.add(tf.matmul(H, W_in)*mixcoe, B_in)
+        H = tf.matmul(H, W_in) * mixcoe
+
+    if str.lower(activate_name) == 's2relu':
+        H = tf.sin(H)
+    elif str.lower(activate_name) == 'csrelu':
+        H = tf.cos(H)
 
     hiddens_record = hiddens[0]
     for k in range(layers-2):
@@ -846,31 +972,43 @@ def PDE_DNN_FourierBase(variable_input, Weights, Biases, hiddens, freq_frag, act
 
 
 def PDE_subDNNs_FourierBase(variable_input, Wlists, Blists, hiddens, freq_frag, activate_name=None):
-    if activate_name == 'relu':
+    if str.lower(activate_name) == 'relu':
         DNN_activation = tf.nn.relu
-    elif activate_name == 'leaky_relu':
+    elif str.lower(activate_name) == 'leaky_relu':
         DNN_activation = tf.nn.leaky_relu(0.2)
-    elif activate_name == 'elu':
-        DNN_activation = tf.nn.elu
-    elif activate_name == 'tanh':
-        DNN_activation = tf.nn.tanh
-    elif activate_name == 'sin':
-        DNN_activation = mysin
-    elif activate_name == 'srelu':
+    elif str.lower(activate_name) == 'srelu':
         DNN_activation = srelu
-    elif activate_name == 'sintanh':
-        DNN_activation = stanh
-    elif activate_name == 'powsin_srelu':
-        DNN_activation = powsin_srelu
-    elif activate_name == 's2relu':
+    elif str.lower(activate_name) == 's2relu':
         DNN_activation = s2relu
-    elif activate_name == 'sin2_srelu':
+    elif str.lower(activate_name) == 'csrelu':
+        DNN_activation = csrelu
+    elif str.lower(activate_name) == 'sin2_srelu':
         DNN_activation = sin2_srelu
-    elif activate_name == 'slrelu':
+    elif str.lower(activate_name) == 'powsin_srelu':
+        DNN_activation = powsin_srelu
+    elif str.lower(activate_name) == 'slrelu':
         DNN_activation = slrelu
-    elif activate_name == 'selu':
+    elif str.lower(activate_name) == 'elu':
+        DNN_activation = tf.nn.elu
+    elif str.lower(activate_name) == 'selu':
         DNN_activation = selu
-    elif activate_name == 'phi':
+    elif str.lower(activate_name) == 'sin':
+        DNN_activation = mysin
+    elif str.lower(activate_name) == 'tanh':
+        DNN_activation = tf.nn.tanh
+    elif str.lower(activate_name) == 'sintanh':
+        DNN_activation = stanh
+    elif str.lower(activate_name) == 'gauss':
+        DNN_activation = gauss
+    elif str.lower(activate_name) == 'singauss':
+        DNN_activation = singauss
+    elif str.lower(activate_name) == 'mexican':
+        DNN_activation = mexican
+    elif str.lower(activate_name) == 'modify_mexican':
+        DNN_activation = modify_mexican
+    elif str.lower(activate_name) == 'sin_modify_mexican':
+        DNN_activation = sm_mexican
+    elif str.lower(activate_name) == 'phi':
         DNN_activation = phi
 
     freqs_parts = []
@@ -911,7 +1049,10 @@ def PDE_subDNNs_FourierBase(variable_input, Wlists, Blists, hiddens, freq_frag, 
         else:
             H = tf.add(tf.matmul(H, W_in) * mixcoe, B_in)
 
-        H = tf.sin(H)
+        if str.lower(activate_name) == 's2relu':
+            H = tf.sin(H)
+        elif str.lower(activate_name) == 'csrelu':
+            H = tf.cos(H)
 
         hidden_record = hiddens[0]
         for k in range(layers - 2):
@@ -929,3 +1070,148 @@ def PDE_subDNNs_FourierBase(variable_input, Wlists, Blists, hiddens, freq_frag, 
         output.append(output2subnet)
     out = tf.reduce_mean(output, axis=0)
     return out
+
+
+def PDE_DNN_WaveletBase(variable_input, Weights, Biases, hiddens, scale_frag, activate_name=None):
+    if str.lower(activate_name) == 'relu':
+        DNN_activation = tf.nn.relu
+    elif str.lower(activate_name) == 'leaky_relu':
+        DNN_activation = tf.nn.leaky_relu(0.2)
+    elif str.lower(activate_name) == 'srelu':
+        DNN_activation = srelu
+    elif str.lower(activate_name) == 's2relu':
+        DNN_activation = s2relu
+    elif str.lower(activate_name) == 'csrelu':
+        DNN_activation = csrelu
+    elif str.lower(activate_name) == 'sin2_srelu':
+        DNN_activation = sin2_srelu
+    elif str.lower(activate_name) == 'powsin_srelu':
+        DNN_activation = powsin_srelu
+    elif str.lower(activate_name) == 'slrelu':
+        DNN_activation = slrelu
+    elif str.lower(activate_name) == 'elu':
+        DNN_activation = tf.nn.elu
+    elif str.lower(activate_name) == 'selu':
+        DNN_activation = selu
+    elif str.lower(activate_name) == 'sin':
+        DNN_activation = mysin
+    elif str.lower(activate_name) == 'tanh':
+        DNN_activation = tf.nn.tanh
+    elif str.lower(activate_name) == 'sintanh':
+        DNN_activation = stanh
+    elif str.lower(activate_name) == 'gauss':
+        DNN_activation = gauss
+    elif str.lower(activate_name) == 'singauss':
+        DNN_activation = singauss
+    elif str.lower(activate_name) == 'mexican':
+        DNN_activation = mexican
+    elif str.lower(activate_name) == 'modify_mexican':
+        DNN_activation = modify_mexican
+    elif str.lower(activate_name) == 'sin_modify_mexican':
+        DNN_activation = sm_mexican
+    elif str.lower(activate_name) == 'phi':
+        DNN_activation = phi
+
+    layers = len(hiddens) + 1                   # 得到输入到输出的层数，即隐藏层层数
+    H = variable_input                          # 代表输入数据，即输入层
+
+    # 计算第一个隐藏单元和尺度标记的比例
+    Unit_num = int(hiddens[0] / len(scale_frag))
+
+    # 然后，频率标记按按照比例复制
+    # np.repeat(a, repeats, axis=None)
+    # 输入: a是数组,repeats是各个元素重复的次数(repeats一般是个标量,稍复杂点是个list),在axis的方向上进行重复
+    # 返回: 如果不指定axis,则将重复后的结果展平(维度为1)后返回;如果指定axis,则不展平
+    mixcoe = np.repeat(scale_frag, Unit_num)
+
+    # 如果第一个隐藏单元的长度大于复制后的频率标记，那就按照最大的频率在最后补齐
+    mixcoe = np.concatenate((mixcoe, np.ones([hiddens[0] - Unit_num * len(scale_frag)]) * scale_frag[-1]))
+
+    mixcoe = mixcoe.astype(np.float32)
+
+    W_in = Weights[0]
+    B_in = Biases[0]
+    if len(scale_frag) == 1:
+        H = tf.add(tf.matmul(H, W_in), B_in)
+        H = tf.exp(-0.5*H*H)
+    else:
+        H1 = tf.add(tf.matmul(H, W_in), B_in)
+        H2 = tf.add(tf.matmul(H, W_in)*mixcoe, B_in)
+        H = tf.exp(-0.25*H1*H1)*tf.sin(H2)
+
+    hiddens_record = hiddens[0]
+    for k in range(layers-2):
+        H_pre = H
+        W = Weights[k+1]
+        B = Biases[k+1]
+        H = DNN_activation(tf.add(tf.matmul(H, W), B))
+        if hiddens[k+1] == hiddens_record:
+            H = H+H_pre
+        hiddens_record = hiddens[k+1]
+
+    W_out = Weights[-1]
+    B_out = Biases[-1]
+    output = tf.add(tf.matmul(H, W_out), B_out)
+    # 下面这个是输出层
+    # output = tf.nn.tanh(output)
+    return output
+
+
+def DNN_attendion(variable_input, Weights, Biases, hiddens, activate_name=None):
+    if str.lower(activate_name) == 'relu':
+        DNN_activation = tf.nn.relu
+    elif str.lower(activate_name) == 'leaky_relu':
+        DNN_activation = tf.nn.leaky_relu(0.2)
+    elif str.lower(activate_name) == 'srelu':
+        DNN_activation = srelu
+    elif str.lower(activate_name) == 's2relu':
+        DNN_activation = s2relu
+    elif str.lower(activate_name) == 'csrelu':
+        DNN_activation = csrelu
+    elif str.lower(activate_name) == 'sin2_srelu':
+        DNN_activation = sin2_srelu
+    elif str.lower(activate_name) == 'powsin_srelu':
+        DNN_activation = powsin_srelu
+    elif str.lower(activate_name) == 'slrelu':
+        DNN_activation = slrelu
+    elif str.lower(activate_name) == 'elu':
+        DNN_activation = tf.nn.elu
+    elif str.lower(activate_name) == 'selu':
+        DNN_activation = selu
+    elif str.lower(activate_name) == 'sin':
+        DNN_activation = mysin
+    elif str.lower(activate_name) == 'tanh':
+        DNN_activation = tf.nn.tanh
+    elif str.lower(activate_name) == 'sintanh':
+        DNN_activation = stanh
+    elif str.lower(activate_name) == 'gauss':
+        DNN_activation = gauss
+    elif str.lower(activate_name) == 'singauss':
+        DNN_activation = singauss
+    elif str.lower(activate_name) == 'mexican':
+        DNN_activation = mexican
+    elif str.lower(activate_name) == 'modify_mexican':
+        DNN_activation = modify_mexican
+    elif str.lower(activate_name) == 'sin_modify_mexican':
+        DNN_activation = sm_mexican
+    elif str.lower(activate_name) == 'phi':
+        DNN_activation = phi
+
+    layers = len(hiddens) + 1               # 得到输入到输出的层数，即隐藏层层数
+    H = variable_input                      # 代表输入数据，即输入层
+    hidden_record = 0
+    for k in range(layers-1):
+        H_pre = H
+        W = Weights[k]
+        B = Biases[k]
+        H = DNN_activation(tf.add(tf.matmul(H, W), B))
+        if hiddens[k] == hidden_record:
+            H = H+H_pre
+        hidden_record = hiddens[k]
+
+    W_out = Weights[-1]
+    B_out = Biases[-1]
+    output = tf.add(tf.matmul(H, W_out), B_out)
+    # 下面这个是输出层
+    output = tf.nn.softmax(output)
+    return output

@@ -10,6 +10,7 @@ import matplotlib
 import platform
 import shutil
 import time
+import CPDNN_base
 import DNN_base
 import DNN_tools
 import DNN_data
@@ -126,10 +127,17 @@ def solve_laplace(R):
         # Weights, Biases = laplace_DNN_base.initialize_NN_random_normal(input_dim, out_dim, hidden_layers, flag1)
         W2NN, B2NN = DNN_base.initialize_NN_random_normal2(input_dim, out_dim, hidden_layers, flag1)
 
+        flag2atten = 'WB2atten'
+        input2atten = 3
+        out2atten = 1
+        hiddens2atten = (50, 40, 20)
+        W2atten, B2atten = DNN_base.initialize_NN_random_normal2(input2atten, out2atten, hiddens2atten, flag2atten)
+
     global_steps = tf.Variable(0, trainable=False)
     with tf.device('/gpu:%s' % (R['gpuNo'])):
         with tf.variable_scope('vscope', reuse=tf.AUTO_REUSE):
             XY_it = tf.placeholder(tf.float32, name='X_it', shape=[None, input_dim])                # * 行 2 列
+            # XY_it = tf.placeholder(tf.float32, name='X_it', shape=[100, input_dim])  # * 行 2 列
             XY_left_bd = tf.placeholder(tf.float32, name='X_left_bd', shape=[None, input_dim])      # * 行 2 列
             XY_right_bd = tf.placeholder(tf.float32, name='X_right_bd', shape=[None, input_dim])    # * 行 2 列
             XY_bottom_bd = tf.placeholder(tf.float32, name='Y_bottom_bd', shape=[None, input_dim])  # * 行 2 列
@@ -192,21 +200,25 @@ def solve_laplace(R):
                 if R['laplace_opt'] == 'general_laplace':
                     laplace_pow = tf.square(dU_NN_2norm)
                     loss_it_variational = (1.0 / 2) *laplace_pow - tf.multiply(f(X_it, Y_it), U_NN)
+
+                    loss_it = tf.reduce_mean(loss_it_variational) * (region_rt - region_lb) * (region_rt - region_lb)
                 else:
                     a_eps = A_eps(X_it, Y_it)                          # * 行 1 列
-                    laplace_p_pow = a_eps*tf.pow(dU_NN_2norm, p)
-                    loss_it_variational = (1.0 / p) * laplace_p_pow - tf.multiply(f(X_it, Y_it), U_NN)
-                loss_it = tf.reduce_mean(loss_it_variational)*(region_rt-region_lb)*(region_rt-region_lb)
+                    auf = tf.concat([a_eps, U_NN, f(X_it, Y_it)], axis=-1)
+                    attens = DNN_base.DNN_attendion(auf, W2atten, B2atten, hiddens2atten, activate_name='leaky_relu')
 
-            if 2 == R['input_dim']:
-                U_left = u_left(tf.reshape(XY_left_bd[:, 0], shape=[-1, 1]), tf.reshape(XY_left_bd[:, 1], shape=[-1, 1]))
-                U_right = u_right(tf.reshape(XY_right_bd[:, 0], shape=[-1, 1]), tf.reshape(XY_right_bd[:, 1], shape=[-1, 1]))
-                U_bottom = u_bottom(tf.reshape(XY_bottom_bd[:, 0], shape=[-1, 1]), tf.reshape(XY_bottom_bd[:, 1], shape=[-1, 1]))
-                U_top = u_top(tf.reshape(XY_top_bd[:, 0], shape=[-1, 1]), tf.reshape(XY_top_bd[:, 1], shape=[-1, 1]))
+                    atten2fUNN = tf.multiply(attens, tf.multiply(f(X_it, Y_it), U_NN))
+                    attens2gradU = tf.multiply(attens, a_eps * tf.pow(dU_NN_2norm, p))
+                    loss_it = (1.0 / p) * tf.reduce_sum(attens2gradU) - tf.reduce_sum(atten2fUNN)
 
-                loss_bd_square = tf.square(ULeft_NN - U_left) + tf.square(URight_NN - U_right) + \
-                                 tf.square(UBottom_NN - U_bottom) + tf.square(UTop_NN - U_top)
-                loss_bd = tf.reduce_mean(loss_bd_square)
+            U_left = u_left(tf.reshape(XY_left_bd[:, 0], shape=[-1, 1]), tf.reshape(XY_left_bd[:, 1], shape=[-1, 1]))
+            U_right = u_right(tf.reshape(XY_right_bd[:, 0], shape=[-1, 1]), tf.reshape(XY_right_bd[:, 1], shape=[-1, 1]))
+            U_bottom = u_bottom(tf.reshape(XY_bottom_bd[:, 0], shape=[-1, 1]), tf.reshape(XY_bottom_bd[:, 1], shape=[-1, 1]))
+            U_top = u_top(tf.reshape(XY_top_bd[:, 0], shape=[-1, 1]), tf.reshape(XY_top_bd[:, 1], shape=[-1, 1]))
+
+            loss_bd_square = tf.square(ULeft_NN - U_left) + tf.square(URight_NN - U_right) + \
+                             tf.square(UBottom_NN - U_bottom) + tf.square(UTop_NN - U_top)
+            loss_bd = tf.reduce_mean(loss_bd_square)
 
             if R['regular_weight_model'] == 'L1':
                 regular_WB = DNN_base.regular_weights_biases_L1(W2NN, B2NN)    # 正则化权重和偏置 L1正则化
@@ -477,44 +489,44 @@ if __name__ == "__main__":
         R['mesh_number'] = 1
         R['epsilon'] = 0.1
         R['order2laplace'] = 2
-        R['batch_size2interior'] = 3000                       # 内部训练数据的批大小
+        R['batch_size2interior'] = 3000  # 内部训练数据的批大小
         R['batch_size2boundary'] = 500
     elif R['laplace_opt'] == 'p_laplace2multi_scale_implicit':
         # 频率设置
-        mesh_number = input('please input mesh_number =')     # 由终端输入的会记录为字符串形式
-        R['mesh_number'] = int(mesh_number)                   # 字符串转为浮点
+        mesh_number = input('please input mesh_number =')  # 由终端输入的会记录为字符串形式
+        R['mesh_number'] = int(mesh_number)  # 字符串转为浮点
 
         # 频率设置
-        epsilon = input('please input epsilon =')       # 由终端输入的会记录为字符串形式
-        R['epsilon'] = float(epsilon)                   # 字符串转为浮点
+        epsilon = input('please input epsilon =')  # 由终端输入的会记录为字符串形式
+        R['epsilon'] = float(epsilon)  # 字符串转为浮点
 
         # 问题幂次
         order2p_laplace = input('please input the order(a int number) to p-laplace:')
         order = float(order2p_laplace)
         R['order2laplace'] = order
 
-        R['batch_size2interior'] = 3000                 # 内部训练数据的批大小
+        R['batch_size2interior'] = 3000  # 内部训练数据的批大小
         if R['mesh_number'] == 2:
-            R['batch_size2boundary'] = 25               # 边界训练数据的批大小
+            R['batch_size2boundary'] = 25  # 边界训练数据的批大小
         elif R['mesh_number'] == 3:
-            R['batch_size2boundary'] = 100              # 边界训练数据的批大小
+            R['batch_size2boundary'] = 100  # 边界训练数据的批大小
         elif R['mesh_number'] == 4:
-            R['batch_size2boundary'] = 200              # 边界训练数据的批大小
+            R['batch_size2boundary'] = 200  # 边界训练数据的批大小
         elif R['mesh_number'] == 5:
-            R['batch_size2boundary'] = 300              # 边界训练数据的批大小
+            R['batch_size2boundary'] = 300  # 边界训练数据的批大小
         elif R['mesh_number'] == 6:
-            R['batch_size2boundary'] = 500              # 边界训练数据的批大小
+            R['batch_size2boundary'] = 500  # 边界训练数据的批大小
     elif R['laplace_opt'] == 'p_laplace2multi_scale_explicit':
         # 频率设置
-        epsilon = input('please input epsilon =')       # 由终端输入的会记录为字符串形式
-        R['epsilon'] = float(epsilon)                   # 字符串转为浮点
+        epsilon = input('please input epsilon =')  # 由终端输入的会记录为字符串形式
+        R['epsilon'] = float(epsilon)  # 字符串转为浮点
 
         # 问题幂次
         order2p_laplace = input('please input the order(a int number) to p-laplace:')
         order = float(order2p_laplace)
         R['order2laplace'] = order
-        R['batch_size2interior'] = 3000                 # 内部训练数据的批大小
-        R['batch_size2boundary'] = 500                  # 边界训练数据的批大小
+        R['batch_size2interior'] = 3000  # 内部训练数据的批大小
+        R['batch_size2boundary'] = 500  # 边界训练数据的批大小
 
     # ---------------------------- Setup of DNN -------------------------------
     R['weight_biases_model'] = 'general_model'
@@ -523,9 +535,9 @@ if __name__ == "__main__":
     R['regular_weight_model'] = 'L0'
     # R['regular_weight_model'] = 'L1'
     # R['regular_weight_model'] = 'L2'
-    R['regular_weight_biases'] = 0.000                    # Regularization parameter for weights
+    R['regular_weight_biases'] = 0.000  # Regularization parameter for weights
     # R['regular_weight_biases'] = 0.001                  # Regularization parameter for weights
-    # R['regular_weight_biases'] = 0.0025                 # Regularization parameter for weights
+    # R['regular_weight_biases'] = 0.0025                   # Regularization parameter for weights
 
     R['activate_penalty2bd_increase'] = 0
     R['boundary_penalty'] = 1000                          # Regularization parameter for boundary conditions
@@ -561,12 +573,11 @@ if __name__ == "__main__":
     # R['activate_func'] = 'sintanh'
     # R['activate_func']' = leaky_relu'
     # R['activate_func'] = 'srelu'
-    # R['activate_func'] = 's2relu'
-    R['activate_func'] = 'csrelu'
+    R['activate_func'] = 's2relu'
     # R['activate_func'] = 'gauss'
-    # R['activate_func'] = 'singauss'
     # R['activate_func'] = 'metican'
     # R['activate_func'] = 'modify_mexican'
+    # R['activate_func'] = 'singauss'
     # R['activate_func'] = 'leaklysrelu'
     # R['activate_func'] = 'slrelu'
     # R['activate_func'] = 'elu'

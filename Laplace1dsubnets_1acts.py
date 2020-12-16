@@ -431,7 +431,8 @@ if __name__ == "__main__":
     R['model'] = 'PDE_subDNNs_scale'
     # R['model'] = 'PDE_subDNNs_adapt_scale'
 
-    R['activate_func'] = 'relu'
+    # R['activate_func'] = 'relu'
+    R['activate_func'] = 'singauss'
     # R['activate_func'] = 'tanh'
     # R['activate_func']' = leaky_relu'
     # R['activate_func'] = 'srelu'
